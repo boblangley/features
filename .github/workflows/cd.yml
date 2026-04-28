@@ -1,17 +1,16 @@
 name: cd
 
 on:
-  push:
-    branches:
-      - main
-    paths:
-      - ".github/workflows/cd.yml"
-      - "src/**"
+  workflow_run:
+    workflows: ["CI - Test Features"]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
 
 jobs:
   publish:
     runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
     permissions:
       contents: write
       packages: write
@@ -19,6 +18,8 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.ref }}
 
       - name: Publish Dev Container Features
         uses: devcontainers/action@v1
