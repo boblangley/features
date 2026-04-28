@@ -7,13 +7,14 @@ source "$(dirname "$0")/common.sh"
 require_root
 check_debian_family
 ensure_nodejs "${NODEVERSION}"
+ensure_apt_packages build-essential python3 make g++
 
 if [ "${INSTALLCODEXCLI}" = "true" ] && ! command -v codex >/dev/null 2>&1; then
     install_npm_global "@openai/codex" "${CODEXVERSION}"
 fi
 
 if ! command -v codex >/dev/null 2>&1; then
-    warn "Codex CLI is not installed. T3 Code requires `codex` to be available and authenticated before the service can be used."
+    warn "Codex CLI is not installed. T3 Code requires codex to be available and authenticated before the service can be used."
 fi
 
 install_npm_global "t3" "${VERSION}"
