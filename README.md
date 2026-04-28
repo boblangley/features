@@ -8,6 +8,8 @@ Dev Container Features published from this repository to GHCR.
 - `ghcr.io/boblangley/features/claude-code-cli:1`: Installs Claude Code using Anthropic's native Linux binary distribution and ensures `claude` is on `PATH`.
 - `ghcr.io/boblangley/features/gemini-cli:1`: Installs the Gemini CLI and ensures `gemini` is on `PATH`.
 - `ghcr.io/boblangley/features/t3code-server:1`: Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-based images.
+- `ghcr.io/boblangley/features/hindsight-claude-code-plugin:1`: Installs the Hindsight long-term memory plugin into Claude Code and registers its hooks. Configurable for an external Hindsight server.
+- `ghcr.io/boblangley/features/hindsight-codex-hooks:1`: Installs the Hindsight memory hooks for the OpenAI Codex CLI. Configurable for an external Hindsight server.
 
 ## Example
 
@@ -18,7 +20,13 @@ Dev Container Features published from this repository to GHCR.
     "ghcr.io/boblangley/features/codex-cli:1": {},
     "ghcr.io/boblangley/features/claude-code-cli:1": {},
     "ghcr.io/boblangley/features/gemini-cli:1": {},
-    "ghcr.io/boblangley/features/t3code-server:1": {}
+    "ghcr.io/boblangley/features/t3code-server:1": {},
+    "ghcr.io/boblangley/features/hindsight-claude-code-plugin:1": {
+      "hindsightApiUrl": "https://api.hindsight.vectorize.io"
+    },
+    "ghcr.io/boblangley/features/hindsight-codex-hooks:1": {
+      "hindsightApiUrl": "https://api.hindsight.vectorize.io"
+    }
   }
 }
 ```

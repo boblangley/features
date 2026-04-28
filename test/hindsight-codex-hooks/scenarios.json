@@ -1,0 +1,17 @@
+{
+  "hindsight-codex-hooks-defaults": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "hindsight-codex-hooks": {}
+    }
+  },
+  "hindsight-codex-hooks-external-server": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "hindsight-codex-hooks": {
+        "hindsightApiUrl": "https://api.hindsight.example.com",
+        "bankId": "ci-codex-bank"
+      }
+    }
+  }
+}

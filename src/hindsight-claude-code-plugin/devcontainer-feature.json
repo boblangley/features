@@ -1,0 +1,54 @@
+{
+  "id": "hindsight-claude-code-plugin",
+  "version": "1.0.0",
+  "name": "Hindsight Memory Plugin for Claude Code",
+  "documentationURL": "https://github.com/boblangley/features/tree/main/src/hindsight-claude-code-plugin",
+  "description": "Installs the Hindsight long-term memory plugin (vectorize-io/hindsight :: hindsight-memory) into Claude Code and registers its hooks. Can be pointed at an external Hindsight server via hindsightApiUrl.",
+  "options": {
+    "marketplace": {
+      "type": "string",
+      "default": "vectorize-io/hindsight",
+      "description": "Claude Code marketplace source to register (e.g. a GitHub repo, URL, or local path)."
+    },
+    "plugin": {
+      "type": "string",
+      "default": "hindsight-memory",
+      "description": "Plugin name to install from the marketplace. Use plugin@marketplace if multiple marketplaces expose the same name."
+    },
+    "scope": {
+      "type": "string",
+      "enum": ["user", "project", "local"],
+      "default": "user",
+      "description": "Installation scope passed to `claude plugin install --scope`."
+    },
+    "hindsightApiUrl": {
+      "type": "string",
+      "default": "",
+      "description": "External Hindsight API URL. When set, ~/.hindsight/claude-code.json is written so the plugin connects to this server instead of starting a local hindsight-embed daemon."
+    },
+    "hindsightApiToken": {
+      "type": "string",
+      "default": "",
+      "description": "Bearer token for the external Hindsight API. Baked into ~/.hindsight/claude-code.json — leave empty and set HINDSIGHT_API_TOKEN at runtime if you would rather not commit the token to your devcontainer config."
+    },
+    "bankId": {
+      "type": "string",
+      "default": "",
+      "description": "Override the static memory bank ID used by the plugin. Empty keeps the plugin default (`claude_code`)."
+    },
+    "registerHooks": {
+      "type": "boolean",
+      "default": true,
+      "description": "Run the plugin's setup_hooks.py to register the SessionStart / UserPromptSubmit / Stop / SessionEnd hooks into ~/.claude/settings.json after install. Disable to leave settings.json untouched."
+    },
+    "username": {
+      "type": "string",
+      "default": "automatic",
+      "description": "Account that owns the installed plugin and config. `automatic` resolves to $_REMOTE_USER, then `vscode`, then root."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/boblangley/features/claude-code-cli"
+  ]
+}
