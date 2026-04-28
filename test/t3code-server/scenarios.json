@@ -1,0 +1,13 @@
+{
+  "t3code-server-custom-options": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "t3code-server": {
+        "port": "4123",
+        "host": "127.0.0.1",
+        "serviceUser": "root",
+        "installCodexCli": false
+      }
+    }
+  }
+}
