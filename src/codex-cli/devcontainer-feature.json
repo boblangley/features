@@ -1,0 +1,22 @@
+{
+  "id": "codex-cli",
+  "version": "1.0.0",
+  "name": "Codex CLI",
+  "documentationURL": "https://github.com/boblangley/features/tree/main/src/codex-cli",
+  "description": "Installs the Codex CLI and ensures `codex` is on the PATH.",
+  "options": {
+    "version": {
+      "type": "string",
+      "default": "latest",
+      "description": "Codex CLI version to install from npm."
+    },
+    "nodeVersion": {
+      "type": "string",
+      "default": "24",
+      "description": "Node.js major version to install if Node.js is missing or too old."
+    }
+  },
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils"
+  ]
+}

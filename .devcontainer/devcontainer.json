@@ -1,0 +1,25 @@
+{
+  "name": "Bob Langley Features Devcontainer",
+  "image": "mcr.microsoft.com/devcontainers/base:noble",
+  "features": {
+    "ghcr.io/devcontainers/features/node:1": {
+      "version": "24"
+    },
+    "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
+  },
+  "mounts": [
+    {
+        "source": "/var/run/docker.sock",
+        "target": "/var/run/docker.sock",
+        "type": "bind"
+    }
+  ],
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        // Docker and containers
+        "ms-azuretools.vscode-docker"
+      ]
+    }
+  }
+}
