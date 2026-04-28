@@ -1,0 +1,19 @@
+{
+  "hindsight-claude-code-plugin-defaults": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "claude-code-cli": {},
+      "hindsight-claude-code-plugin": {}
+    }
+  },
+  "hindsight-claude-code-plugin-external-server": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "claude-code-cli": {},
+      "hindsight-claude-code-plugin": {
+        "hindsightApiUrl": "https://api.hindsight.example.com",
+        "bankId": "ci-test-bank"
+      }
+    }
+  }
+}
