@@ -30,14 +30,21 @@ set -euo pipefail
 export HOME="${service_home}"
 export T3CODE_PORT="\${T3CODE_PORT:-${PORT}}"
 export T3CODE_HOST="\${T3CODE_HOST:-${HOST}}"
+export T3CODE_SERVE_MODE="\${T3CODE_SERVE_MODE:-${SERVEMODE}}"
 
-exec /usr/local/bin/t3 serve --host="\${T3CODE_HOST}" --port="\${T3CODE_PORT}" "\$@"
+args=(serve --host="\${T3CODE_HOST}" --port="\${T3CODE_PORT}")
+if [ -n "\${T3CODE_SERVE_MODE}" ]; then
+    args+=(--mode="\${T3CODE_SERVE_MODE}")
+fi
+
+exec /usr/local/bin/t3 "\${args[@]}" "\$@"
 EOF
 chmod 0755 /usr/local/bin/t3code-server
 
 cat >/etc/default/t3code <<EOF
 T3CODE_PORT=${PORT}
 T3CODE_HOST=${HOST}
+T3CODE_SERVE_MODE=${SERVEMODE}
 EOF
 
 cat >/etc/systemd/system/t3code.service <<EOF

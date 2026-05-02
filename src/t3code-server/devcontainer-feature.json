@@ -25,6 +25,12 @@
       "default": "0.0.0.0",
       "description": "Interface to bind the T3 Code server to."
     },
+    "serveMode": {
+      "type": "string",
+      "enum": ["", "web", "desktop"],
+      "default": "",
+      "description": "Optional T3 runtime mode passed to `t3 serve --mode`. Set to `web` for the web runtime. Empty preserves the T3 CLI default."
+    },
     "serviceUser": {
       "type": "string",
       "default": "automatic",

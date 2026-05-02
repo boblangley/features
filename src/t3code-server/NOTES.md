@@ -4,6 +4,7 @@ Defaults:
 
 - host: `0.0.0.0`
 - port: `3773`
+- serve mode: unset (preserves the T3 CLI default; set `serveMode` to `web` to run `t3 serve --mode=web`)
 - service user: remote user if available, otherwise `vscode`, otherwise `root`
 
 Example usage:
@@ -12,7 +13,8 @@ Example usage:
 {
   "features": {
     "ghcr.io/boblangley/features/t3code-server:1": {
-      "port": "3773"
+      "port": "3773",
+      "serveMode": "web"
     }
   }
 }

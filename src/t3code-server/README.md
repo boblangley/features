@@ -10,6 +10,7 @@ Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-ba
 | `nodeVersion` | string | `24` | Node.js major version to install if Node.js is missing or too old. |
 | `port` | string | `3773` | Port exposed by the T3 Code server. |
 | `host` | string | `0.0.0.0` | Interface to bind the T3 Code server to. |
+| `serveMode` | string | `""` | Optional T3 runtime mode passed to `t3 serve --mode`. Set to `web` for the web runtime. Empty preserves the T3 CLI default. |
 | `serviceUser` | string | `automatic` | User account to run the service as. `automatic` prefers the remote user, then `vscode`, then `root`. |
 | `installCodexCli` | boolean | `true` | Install the Codex CLI automatically when it is not already present. |
 | `codexVersion` | string | `latest` | Codex CLI version to install when `installCodexCli` is enabled. |
@@ -20,7 +21,8 @@ Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-ba
 {
   "features": {
     "ghcr.io/boblangley/features/t3code-server:1": {
-      "port": "3773"
+      "port": "3773",
+      "serveMode": "web"
     }
   }
 }
