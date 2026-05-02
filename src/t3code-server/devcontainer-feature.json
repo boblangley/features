@@ -1,6 +1,6 @@
 {
   "id": "t3code-server",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "T3 Code Server",
   "documentationURL": "https://github.com/boblangley/features/tree/main/src/t3code-server",
   "description": "Installs T3 Code and configures a headless systemd service on Debian/Ubuntu images.",
