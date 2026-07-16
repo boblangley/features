@@ -2,7 +2,7 @@
   "name": "Bob Langley Features Devcontainer",
   "image": "mcr.microsoft.com/devcontainers/base:noble",
   "features": {
-    "ghcr.io/devcontainers/features/node:1": {
+    "ghcr.io/devcontainers/features/node:2.1": {
       "version": "24"
     },
     "ghcr.io/devcontainers/features/docker-outside-of-docker:1": {}
