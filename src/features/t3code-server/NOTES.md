@@ -1,23 +1,9 @@
-Installs the `t3` package and creates a `t3code.service` systemd unit that runs `t3 serve` in headless mode.
+T3 Code runs under s6-overlay using `${HOME}/.t3` as its base directory.
 
-Defaults:
+Mint a pairing code manually under the service user's home context:
 
-- host: `0.0.0.0`
-- port: `3773`
-- serve mode: unset (preserves the T3 CLI default; set `serveMode` to `web` to run `t3 serve --mode=web`)
-- service user: remote user if available, otherwise `vscode`, otherwise `root`
-
-Example usage:
-
-```json
-{
-  "features": {
-    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
-      "port": "3773",
-      "serveMode": "web"
-    }
-  }
-}
+```bash
+sudo -u vscode t3 auth pairing create --base-dir /home/vscode/.t3
 ```
 
-T3 Code requires an authenticated Codex CLI. This Feature can install Codex automatically, but you still need to authenticate it after container creation.
+Codex is intentionally not installed by this Feature. Add `ghcr.io/wyrd-company/devcontainers/codex-cli:1` separately when needed.

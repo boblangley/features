@@ -2,15 +2,19 @@
 
 set -e
 
+# shellcheck disable=SC1091
 source dev-container-features-test-lib
 
-check "t3 command exists" bash -c "command -v t3"
-check "t3 version works" bash -c "t3 --version"
-check "codex command exists by default" bash -c "command -v codex"
-check "launcher exists" bash -c "test -x /usr/local/bin/t3code-server"
-check "systemd unit exists" bash -c "test -f /etc/systemd/system/t3code.service"
-check "default host written" bash -c "grep -q '^T3CODE_HOST=0.0.0.0$' /etc/default/t3code"
-check "default port written" bash -c "grep -q '^T3CODE_PORT=3773$' /etc/default/t3code"
-check "unit starts headless service" bash -c "grep -q '^ExecStart=/usr/local/bin/t3code-server$' /etc/systemd/system/t3code.service"
+T3_HOME="$(getent passwd vscode | cut -d: -f6)"
+
+check "t3 command exists" test -x "${T3_HOME}/.local/bin/t3"
+check "t3 version works as service user" env HOME="${T3_HOME}" "${T3_HOME}/.local/bin/t3" --version
+check "t3 installation owned by service user" test "$(stat -c %U "${T3_HOME}/.local/bin/t3")" = vscode
+check "codex is not installed" bash -c "! command -v codex >/dev/null 2>&1"
+# shellcheck disable=SC2016
+check "launcher uses the service base directory" grep -q -- '--base-dir "${HOME}/.t3"' /usr/local/bin/t3code-server
+check "s6 service is registered" test -f /etc/s6-overlay/user-bundles.d/user/contents.d/t3code-server
+check "s6 service is a longrun" grep -qx longrun /etc/s6-overlay/s6-rc.d/t3code-server/type
+check "systemd unit is absent" test ! -e /etc/systemd/system/t3code.service
 
 reportResults

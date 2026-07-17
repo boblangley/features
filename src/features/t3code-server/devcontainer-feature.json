@@ -1,19 +1,14 @@
 {
   "id": "t3code-server",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "name": "T3 Code Server",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/t3code-server",
-  "description": "Installs T3 Code and configures a headless systemd service on Debian/Ubuntu images.",
+  "description": "Installs T3 Code for the service user and configures an s6-overlay service on Debian/Ubuntu images.",
   "options": {
     "version": {
       "type": "string",
       "default": "latest",
       "description": "T3 Code npm package version to install."
-    },
-    "nodeVersion": {
-      "type": "string",
-      "default": "24",
-      "description": "Node.js major version to install if Node.js is missing or too old."
     },
     "port": {
       "type": "string",
@@ -34,20 +29,13 @@
     "serviceUser": {
       "type": "string",
       "default": "automatic",
-      "description": "User account to run the service as. `automatic` prefers the remote user, then `vscode`, then `root`."
-    },
-    "installCodexCli": {
-      "type": "boolean",
-      "default": true,
-      "description": "Install the Codex CLI automatically when it is not already present."
-    },
-    "codexVersion": {
-      "type": "string",
-      "default": "latest",
-      "description": "Codex CLI version to install when `installCodexCli` is enabled."
+      "description": "User account to run the service as. `automatic` prefers the remote user, container user, `vscode`, then `root`."
     }
   },
-  "installsAfter": [
-    "ghcr.io/devcontainers/features/common-utils"
-  ]
+  "dependsOn": {
+    "ghcr.io/devcontainers/features/node:2": {
+      "version": "24"
+    }
+  },
+  "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
 }

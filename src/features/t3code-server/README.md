@@ -1,26 +1,26 @@
 # T3 Code Server
 
-Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-based images.
+Installs T3 Code for the selected service user and runs `t3 serve` as a native s6-overlay 3 service.
+
+The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. Node.js 24 is supplied through the official Dev Container Node Feature.
 
 ## Options
 
-| Option | Type | Default | Description |
-| --- | --- | --- | --- |
-| `version` | string | `latest` | T3 Code npm package version to install. |
-| `nodeVersion` | string | `24` | Node.js major version to install if Node.js is missing or too old. |
-| `port` | string | `3773` | Port exposed by the T3 Code server. |
-| `host` | string | `0.0.0.0` | Interface to bind the T3 Code server to. |
-| `serveMode` | string | `""` | Optional T3 runtime mode passed to `t3 serve --mode`. Set to `web` for the web runtime. Empty preserves the T3 CLI default. |
-| `serviceUser` | string | `automatic` | User account to run the service as. `automatic` prefers the remote user, then `vscode`, then `root`. |
-| `installCodexCli` | boolean | `true` | Install the Codex CLI automatically when it is not already present. |
-| `codexVersion` | string | `latest` | Codex CLI version to install when `installCodexCli` is enabled. |
+| Option        | Type   | Default     | Description                                                                                                                         |
+| ------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `version`     | string | `latest`    | T3 Code npm package version to install.                                                                                             |
+| `port`        | string | `3773`      | Port exposed by the T3 Code server.                                                                                                 |
+| `host`        | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                            |
+| `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                           |
+| `serviceUser` | string | `automatic` | User account that owns T3 and runs the service. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
 
-## Example Usage
+## Example usage
 
 ```json
 {
+  "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
   "features": {
-    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:2": {
       "port": "3773",
       "serveMode": "web"
     }
@@ -28,8 +28,14 @@ Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-ba
 }
 ```
 
-## Notes
+## Pairing
 
-T3 Code requires an authenticated Codex CLI. This Feature can install Codex automatically, but authentication still needs to happen after the container is created.
+The Feature does not install Codex. Add the separate Codex CLI Feature when needed.
 
-The service unit is installed for `systemd`. In containers where `systemd` is not running, the unit file will still be created, but the service will not be actively managed until a `systemd`-enabled environment is used.
+To mint a pairing code at any time, run the command as the service user and use the same T3 base directory as the server:
+
+```bash
+sudo -u vscode t3 auth pairing create --base-dir /home/vscode/.t3
+```
+
+Replace `vscode` and its home directory when `serviceUser` resolves to another account. T3 writes its own logs beneath `<home>/.t3/userdata/logs`; s6 sends process output to the container logs.
