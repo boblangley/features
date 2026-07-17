@@ -20,7 +20,7 @@ jobs:
           - mcr.microsoft.com/devcontainers/base:noble
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install latest devcontainer CLI
         run: npm install -g @devcontainers/cli
@@ -36,7 +36,7 @@ jobs:
           - t3code-server
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install latest devcontainer CLI
         run: npm install -g @devcontainers/cli
@@ -48,7 +48,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Install latest devcontainer CLI
         run: npm install -g @devcontainers/cli
@@ -63,7 +63,7 @@ jobs:
         variant: [noble, resolute]
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
@@ -83,7 +83,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Validate metadata and substitutions
         run: |
