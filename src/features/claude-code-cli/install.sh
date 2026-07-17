@@ -2,44 +2,26 @@
 
 set -euo pipefail
 
+# shellcheck disable=SC1091
 source "$(dirname "$0")/common.sh"
 
-DOWNLOAD_BASE_URL="https://downloads.claude.ai/claude-code-releases"
-INSTALL_DIR="/usr/local/share/claude-code"
-
 require_root
-check_debian_family
-ensure_apt_packages ca-certificates curl jq
+ensure_apt_packages ca-certificates curl
 
-platform="$(detect_claude_platform)"
-requested_version="${VERSION}"
+devcontainer_user="$(pick_devcontainer_user)"
+user_home="$(user_home_dir "${devcontainer_user}")"
+[ -n "${user_home}" ] || err "Unable to resolve the home directory for ${devcontainer_user}."
 
-if [ "${requested_version}" = "latest" ] || [ "${requested_version}" = "stable" ]; then
-    resolved_version="$(curl -fsSL "${DOWNLOAD_BASE_URL}/latest")"
-else
-    resolved_version="${requested_version}"
-fi
+installer="$(mktemp)"
+curl --fail --location --silent --show-error https://claude.ai/install.sh --output "${installer}"
+chmod 0755 "${installer}"
 
-manifest_json="$(curl -fsSL "${DOWNLOAD_BASE_URL}/${resolved_version}/manifest.json")"
-checksum="$(printf '%s' "${manifest_json}" | jq -r ".platforms[\"${platform}\"].checksum // empty")"
+log "Installing Claude Code ${VERSION} for ${devcontainer_user}"
+run_as_user "${devcontainer_user}" env HOME="${user_home}" bash "${installer}" "${VERSION}"
+rm -f "${installer}"
 
-[ -n "${checksum}" ] || err "Unable to resolve Claude Code checksum for platform ${platform}."
+claude_binary="${user_home}/.local/bin/claude"
+[ -x "${claude_binary}" ] || err "Claude Code was not installed at ${claude_binary}."
+ln -sf "${claude_binary}" /usr/local/bin/claude
 
-mkdir -p "${INSTALL_DIR}"
-binary_path="${INSTALL_DIR}/claude-${resolved_version}-${platform}"
-tmp_binary="$(mktemp)"
-
-curl -fsSL "${DOWNLOAD_BASE_URL}/${resolved_version}/${platform}/claude" -o "${tmp_binary}"
-actual_checksum="$(sha256sum "${tmp_binary}" | awk '{print $1}')"
-
-if [ "${actual_checksum}" != "${checksum}" ]; then
-    rm -f "${tmp_binary}"
-    err "Checksum verification failed for Claude Code ${resolved_version}."
-fi
-
-install -m 0755 "${tmp_binary}" "${binary_path}"
-ln -sf "${binary_path}" /usr/local/bin/claude
-rm -f "${tmp_binary}"
-
-command -v claude >/dev/null 2>&1 || err "Claude Code was not added to PATH."
-log "Installed Claude Code $(claude --version)"
+log "Installed Claude Code $(run_as_user "${devcontainer_user}" env HOME="${user_home}" "${claude_binary}" --version)"

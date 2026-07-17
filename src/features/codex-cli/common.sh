@@ -2,14 +2,8 @@
 
 set -euo pipefail
 
-APT_UPDATED=0
-
 log() {
     echo "[$(basename "$0")] $*"
-}
-
-warn() {
-    echo "[$(basename "$0")] WARNING: $*" >&2
 }
 
 err() {
@@ -18,94 +12,33 @@ err() {
 }
 
 require_root() {
-    if [ "$(id -u)" -ne 0 ]; then
-        err "This Feature must run as root."
-    fi
+    [ "$(id -u)" -eq 0 ] || err "This Feature must run as root."
 }
 
-check_debian_family() {
-    local feature_version="${VERSION-}"
+pick_devcontainer_user() {
+    local candidate
 
-    if [ ! -r /etc/os-release ]; then
-        err "Unable to detect Linux distribution."
-    fi
-
-    # shellcheck disable=SC1091
-    . /etc/os-release
-
-    case "${ID:-}" in
-        debian|ubuntu)
-            VERSION="${feature_version}"
-            return 0
-            ;;
-    esac
-
-    case " ${ID_LIKE:-} " in
-        *" debian "*)
-            VERSION="${feature_version}"
-            return 0
-            ;;
-    esac
-
-    VERSION="${feature_version}"
-    err "This Feature currently supports Debian/Ubuntu-based images."
-}
-
-apt_update() {
-    if [ "$APT_UPDATED" -eq 0 ]; then
-        export DEBIAN_FRONTEND=noninteractive
-        apt-get update -y
-        APT_UPDATED=1
-    fi
-}
-
-ensure_apt_packages() {
-    apt_update
-    export DEBIAN_FRONTEND=noninteractive
-    apt-get install -y --no-install-recommends "$@"
-}
-
-ensure_nodejs() {
-    local required_major="${1}"
-    local installed_major=""
-
-    check_debian_family
-    ensure_apt_packages ca-certificates curl gnupg
-
-    if command -v node >/dev/null 2>&1 && command -v npm >/dev/null 2>&1; then
-        installed_major="$(node -p 'process.versions.node.split(".")[0]')"
-        if [ "${installed_major}" -ge "${required_major}" ]; then
-            log "Using existing Node.js $(node --version)"
-            return 0
+    for candidate in "${_REMOTE_USER:-}" "${_CONTAINER_USER:-}" vscode root; do
+        if [ -n "${candidate}" ] && id -u "${candidate}" >/dev/null 2>&1; then
+            echo "${candidate}"
+            return
         fi
-        log "Upgrading Node.js from major ${installed_major} to ${required_major}"
-    else
-        log "Installing Node.js ${required_major}.x"
-    fi
+    done
 
-    mkdir -p /etc/apt/keyrings
-    if [ ! -f /etc/apt/keyrings/nodesource.gpg ]; then
-        curl -fsSL https://deb.nodesource.com/gpgkey/nodesource-repo.gpg.key \
-            | gpg --dearmor -o /etc/apt/keyrings/nodesource.gpg
-    fi
-
-    cat >/etc/apt/sources.list.d/nodesource.list <<EOF
-deb [signed-by=/etc/apt/keyrings/nodesource.gpg] https://deb.nodesource.com/node_${required_major}.x nodistro main
-EOF
-
-    APT_UPDATED=0
-    ensure_apt_packages nodejs
+    err "Unable to resolve the Dev Container user."
 }
 
-install_npm_global() {
-    local package_name="${1}"
-    local version="${2:-latest}"
-    local package_spec="${package_name}"
+user_home_dir() {
+    getent passwd "$1" | cut -d: -f6
+}
 
-    if [ "${version}" != "latest" ]; then
-        package_spec="${package_name}@${version}"
+run_as_user() {
+    local username="$1"
+    shift
+
+    if [ "${username}" = root ]; then
+        "$@"
+    else
+        runuser --user "${username}" -- "$@"
     fi
-
-    log "Installing ${package_spec}"
-    NPM_CONFIG_UPDATE_NOTIFIER=false npm install -g "${package_spec}"
 }

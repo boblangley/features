@@ -1,9 +1,9 @@
 {
   "id": "claude-code-cli",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "Claude Code CLI",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/claude-code-cli",
-  "description": "Installs Claude Code using Anthropic's native Linux binary installer path and ensures `claude` is on the PATH.",
+  "description": "Installs Claude Code for the Dev Container user using Anthropic's native installer and ensures `claude` is on the PATH.",
   "options": {
     "version": {
       "type": "string",
@@ -11,7 +11,5 @@
       "description": "Claude Code version to install. Use `latest` or a specific version like `1.0.58`."
     }
   },
-  "installsAfter": [
-    "ghcr.io/devcontainers/features/common-utils"
-  ]
+  "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
 }

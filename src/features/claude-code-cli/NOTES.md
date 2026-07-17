@@ -1,4 +1,4 @@
-Installs the native Linux Claude Code binary and symlinks it into `/usr/local/bin/claude`.
+Runs Anthropic's native installer as the resolved Dev Container user and symlinks its user-owned executable into `/usr/local/bin/claude`.
 
 Example usage:
 

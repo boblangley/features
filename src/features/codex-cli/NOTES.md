@@ -1,11 +1,9 @@
-Installs the npm-distributed OpenAI Codex CLI and makes `codex` available on the container `PATH`.
-
-Example usage:
+Installs the npm-distributed OpenAI Codex CLI beneath the resolved Dev Container user's `${HOME}/.local` directory.
 
 ```json
 {
   "features": {
-    "ghcr.io/wyrd-company/devcontainers/codex-cli:1": {}
+    "ghcr.io/wyrd-company/devcontainers/codex-cli:2": {}
   }
 }
 ```
