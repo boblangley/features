@@ -13,7 +13,7 @@ Installs Claude Code using Anthropic's native Linux binary distribution and ensu
 ```json
 {
   "features": {
-    "ghcr.io/wyrd-company/features/claude-code-cli:1": {}
+    "ghcr.io/wyrd-company/devcontainers/claude-code-cli:1": {}
   }
 }
 ```

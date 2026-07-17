@@ -2,7 +2,7 @@
   "id": "claude-code-cli",
   "version": "1.0.0",
   "name": "Claude Code CLI",
-  "documentationURL": "https://github.com/wyrd-company/features/tree/main/src/claude-code-cli",
+  "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/claude-code-cli",
   "description": "Installs Claude Code using Anthropic's native Linux binary installer path and ensures `claude` is on the PATH.",
   "options": {
     "version": {

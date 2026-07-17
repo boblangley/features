@@ -1,0 +1,19 @@
+{
+  "id": "ubuntu",
+  "version": "1.0.0",
+  "name": "Ubuntu with s6-overlay",
+  "description": "An Ubuntu development container with s6-overlay process and service supervision.",
+  "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/templates/ubuntu",
+  "publisher": "Bob Langley",
+  "licenseURL": "https://github.com/wyrd-company/devcontainers/blob/main/LICENSE",
+  "options": {
+    "imageVariant": {
+      "type": "string",
+      "description": "Ubuntu version.",
+      "proposals": ["noble", "resolute"],
+      "default": "noble"
+    }
+  },
+  "platforms": ["Any"],
+  "keywords": ["ubuntu", "s6", "s6-overlay"]
+}

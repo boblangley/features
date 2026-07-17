@@ -1,38 +1,41 @@
-# features
+# Dev containers
 
-Dev Container Features published from this repository to GHCR.
+Dev Container images, Templates, and Features published by Bob Langley to GitHub Container Registry.
 
-## Available features
+## Ubuntu image
 
-- `ghcr.io/wyrd-company/features/codex-cli:1`: Installs the OpenAI Codex CLI and ensures `codex` is on `PATH`.
-- `ghcr.io/wyrd-company/features/claude-code-cli:1`: Installs Claude Code using Anthropic's native Linux binary distribution and ensures `claude` is on `PATH`.
-- `ghcr.io/wyrd-company/features/gemini-cli:1`: Installs the Gemini CLI and ensures `gemini` is on `PATH`.
-- `ghcr.io/wyrd-company/features/t3code-server:1`: Installs T3 Code and configures a headless `systemd` service on Debian/Ubuntu-based images.
-- `ghcr.io/wyrd-company/features/hindsight-claude-code-plugin:1`: Installs the Hindsight long-term memory plugin into Claude Code and registers its hooks. Configurable for an external Hindsight server.
-- `ghcr.io/wyrd-company/features/hindsight-codex-hooks:1`: Installs the Hindsight memory hooks for the OpenAI Codex CLI. Configurable for an external Hindsight server.
+`ghcr.io/wyrd-company/devcontainers/base` derives from Microsoft's Ubuntu Dev Container base and adds s6-overlay as PID 1.
 
-## Example
+Supported rolling tags:
 
-```json
-{
-  "image": "mcr.microsoft.com/devcontainers/base:noble",
-  "features": {
-    "ghcr.io/wyrd-company/features/codex-cli:1": {},
-    "ghcr.io/wyrd-company/features/claude-code-cli:1": {},
-    "ghcr.io/wyrd-company/features/gemini-cli:1": {},
-    "ghcr.io/wyrd-company/features/t3code-server:1": {},
-    "ghcr.io/wyrd-company/features/hindsight-claude-code-plugin:1": {
-      "hindsightApiUrl": "https://api.hindsight.vectorize.io"
-    },
-    "ghcr.io/wyrd-company/features/hindsight-codex-hooks:1": {
-      "hindsightApiUrl": "https://api.hindsight.vectorize.io"
-    }
-  }
-}
+- `noble` and `ubuntu24.04`
+- `resolute` and `ubuntu26.04`
+
+Both variants support `amd64` and `arm64`.
+
+## Ubuntu Template
+
+Apply the Template using:
+
+```text
+ghcr.io/wyrd-company/devcontainers/ubuntu:1
 ```
 
-## Publishing
+It defaults to Ubuntu 24.04 LTS (`noble`) and can select Ubuntu 26.04 LTS (`resolute`).
 
-The repository includes `.github/workflows/cd.yml`, which publishes every feature under `src/` to GHCR using the official `devcontainers/action`.
+## Features
 
-After the first publish, set the generated GHCR packages to public if you want them to be consumable outside your account or organization.
+- `ghcr.io/wyrd-company/devcontainers/codex-cli:1`
+- `ghcr.io/wyrd-company/devcontainers/claude-code-cli:1`
+- `ghcr.io/wyrd-company/devcontainers/t3code-server:1`
+
+## Source layout
+
+```text
+src/
+├── features/
+├── images/
+└── templates/
+```
+
+Feature and Template releases use the official Dev Container publishing action. Ubuntu images are rebuilt weekly and on relevant changes, published with provenance and Software Bill of Materials attestations, and retained with twelve dated rollback builds per variant.

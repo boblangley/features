@@ -1,0 +1,6 @@
+#!/command/with-contenv sh
+# shellcheck shell=sh
+
+echo "$$" >>/tmp/restart-probe-pids
+sleep 1
+exit 1

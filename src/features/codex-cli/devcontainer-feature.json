@@ -2,7 +2,7 @@
   "id": "codex-cli",
   "version": "1.0.0",
   "name": "Codex CLI",
-  "documentationURL": "https://github.com/wyrd-company/features/tree/main/src/codex-cli",
+  "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/codex-cli",
   "description": "Installs the Codex CLI and ensures `codex` is on the PATH.",
   "options": {
     "version": {

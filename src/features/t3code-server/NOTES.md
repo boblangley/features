@@ -12,7 +12,7 @@ Example usage:
 ```json
 {
   "features": {
-    "ghcr.io/wyrd-company/features/t3code-server:1": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
       "port": "3773",
       "serveMode": "web"
     }

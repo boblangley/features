@@ -1,0 +1,4 @@
+{
+  "name": "Ubuntu with s6-overlay",
+  "image": "ghcr.io/wyrd-company/devcontainers/base:${templateOption:imageVariant}"
+}
