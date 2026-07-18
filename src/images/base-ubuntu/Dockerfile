@@ -34,4 +34,4 @@ LABEL org.opencontainers.image.authors="Bob Langley" \
       org.opencontainers.image.title="Ubuntu Dev Container base with s6-overlay"
 
 ENTRYPOINT ["/init"]
-CMD ["/bin/bash"]
+CMD ["/command/s6-pause"]
