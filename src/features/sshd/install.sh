@@ -7,12 +7,8 @@
 # Docs: https://github.com/microsoft/vscode-dev-containers/blob/main/script-library/docs/sshd.md
 # Maintainer: The VS Code and Codespaces Teams
 #
-# Note: You can change your user's password with "sudo passwd $(whoami)" (or just "passwd" if running as root).
-
 SSHD_PORT="${SSHD_PORT:-"2222"}"
 USERNAME="${USERNAME:-"${_REMOTE_USER:-"automatic"}"}"
-START_SSHD="${START_SSHD:-"false"}"
-NEW_PASSWORD="${NEW_PASSWORD:-"skip"}"
 GATEWAY_PORTS="${GATEWAYPORTS:-"no"}"
 
 set -e
@@ -64,15 +60,6 @@ export DEBIAN_FRONTEND=noninteractive
 # Install openssh-server openssh-client
 check_packages openssh-server openssh-client lsof
 
-# Generate password if new password set to the word "random"
-if [ "${NEW_PASSWORD}" = "random" ]; then
-    NEW_PASSWORD="$(openssl rand -hex 16)"
-    EMIT_PASSWORD="true"
-elif [ "${NEW_PASSWORD}" != "skip" ]; then
-    # If new password not set to skip, set it for the specified user
-    echo "${USERNAME}:${NEW_PASSWORD}" | chpasswd
-fi
-
 if [ $(getent group ssh) ]; then
   echo "'ssh' group already exists."
 else
@@ -88,11 +75,20 @@ fi
 # Setup sshd
 mkdir -p /var/run/sshd
 sed -i 's/session\s*required\s*pam_loginuid\.so/session optional pam_loginuid.so/g' /etc/pam.d/sshd
-sed -i 's/#*PermitRootLogin prohibit-password/PermitRootLogin yes/g' /etc/ssh/sshd_config
 sed -i -E "s/#*\s*Port\s+.+/Port ${SSHD_PORT}/g" /etc/ssh/sshd_config
 sed -i "s/#GatewayPorts no/GatewayPorts ${GATEWAY_PORTS}/g" /etc/ssh/sshd_config
 # Need to UsePAM so /etc/environment is processed
 sed -i -E "s/#?\s*UsePAM\s+.+/UsePAM yes/g" /etc/ssh/sshd_config
+
+# Included files are processed before the main configuration. OpenSSH uses the
+# first value it obtains, so this file sorts first to enforce key-only access.
+cat >/etc/ssh/sshd_config.d/00-devcontainer-key-only.conf <<EOF
+AuthenticationMethods publickey
+KbdInteractiveAuthentication no
+PasswordAuthentication no
+PermitRootLogin no
+PubkeyAuthentication yes
+EOF
 
 # Register sshd as a native s6-rc longrun service.
 for required_path in /init /etc/s6-overlay/s6-rc.d /etc/s6-overlay/user-bundles.d/user/contents.d; do
@@ -117,8 +113,6 @@ EOF
 chmod 0755 "${service_dir}/run"
 
 echo -e "Done!\n\n- Port: ${SSHD_PORT}\n- User: ${USERNAME}"
-if [ "${EMIT_PASSWORD:-false}" = "true" ]; then
-    echo "- Password: ${NEW_PASSWORD}"
-fi
+echo "- Authentication: public key only"
 
 rm -rf /var/lib/apt/lists/*
