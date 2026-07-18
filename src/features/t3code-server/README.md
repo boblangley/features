@@ -1,18 +1,18 @@
 # T3 Code Server
 
-Installs T3 Code for the selected service user and runs `t3 serve` as a native s6-overlay 3 service.
+Installs T3 Code globally and runs `t3 serve` as the selected service user through a native s6-overlay 3 service. Runtime state remains in the service user's home directory.
 
 The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. Node.js 24 is supplied through the official Dev Container Node Feature.
 
 ## Options
 
-| Option        | Type   | Default     | Description                                                                                                                         |
-| ------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------- |
-| `version`     | string | `latest`    | T3 Code npm package version to install.                                                                                             |
-| `port`        | string | `3773`      | Port exposed by the T3 Code server.                                                                                                 |
-| `host`        | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                            |
-| `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                           |
-| `serviceUser` | string | `automatic` | User account that owns T3 and runs the service. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
+| Option        | Type   | Default     | Description                                                                                                                               |
+| ------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `version`     | string | `latest`    | T3 Code npm package version to install.                                                                                                   |
+| `port`        | string | `3773`      | Port exposed by the T3 Code server.                                                                                                       |
+| `host`        | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                                  |
+| `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
+| `serviceUser` | string | `automatic` | User account that runs T3 and owns its runtime state. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
 
 ## Example usage
 

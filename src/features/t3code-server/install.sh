@@ -15,19 +15,17 @@ service_home="$(user_home_dir "${service_user}")"
 [ -n "${service_home}" ] || err "Unable to resolve the home directory for ${service_user}."
 
 install -d -m 0755 -o "${service_user}" -g "$(id -gn "${service_user}")" \
-    "${service_home}/.local" "${service_home}/.t3"
+    "${service_home}/.t3"
 
 package_spec="t3@${VERSION}"
-log "Installing ${package_spec} for ${service_user}"
-run_as_user "${service_user}" env \
-    HOME="${service_home}" \
+log "Installing ${package_spec} globally"
+env \
     NPM_CONFIG_ENGINE_STRICT=true \
     NPM_CONFIG_UPDATE_NOTIFIER=false \
-    npm install --global --prefix "${service_home}/.local" "${package_spec}"
+    npm install --global --prefix /usr/local "${package_spec}"
 
-t3_binary="${service_home}/.local/bin/t3"
+t3_binary=/usr/local/bin/t3
 [ -x "${t3_binary}" ] || err "T3 Code was not installed at ${t3_binary}."
-ln -sf "${t3_binary}" /usr/local/bin/t3
 
 printf -v quoted_home '%q' "${service_home}"
 printf -v quoted_t3 '%q' "${t3_binary}"
@@ -40,7 +38,6 @@ cat >/usr/local/bin/t3code-server <<EOF
 set -euo pipefail
 
 export HOME=${quoted_home}
-export PATH="\${HOME}/.local/bin:\${PATH}"
 export T3CODE_NO_BROWSER=1
 
 default_port=${quoted_port}

@@ -7,9 +7,10 @@ source dev-container-features-test-lib
 
 T3_HOME="$(getent passwd vscode | cut -d: -f6)"
 
-check "t3 command exists" test -x "${T3_HOME}/.local/bin/t3"
-check "t3 version works as service user" env HOME="${T3_HOME}" "${T3_HOME}/.local/bin/t3" --version
-check "t3 installation owned by service user" test "$(stat -c %U "${T3_HOME}/.local/bin/t3")" = vscode
+check "t3 command exists globally" test -x /usr/local/bin/t3
+check "t3 version works as service user" env HOME="${T3_HOME}" /usr/local/bin/t3 --version
+check "t3 installation is root-owned" test "$(stat -c %U /usr/local/lib/node_modules/t3)" = root
+check "t3 is not installed in the service user's local bin" test ! -e "${T3_HOME}/.local/bin/t3"
 check "codex is not installed" bash -c "! command -v codex >/dev/null 2>&1"
 # shellcheck disable=SC2016
 check "launcher uses the service base directory" grep -q -- '--base-dir "${HOME}/.t3"' /usr/local/bin/t3code-server
