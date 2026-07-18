@@ -107,6 +107,37 @@ jobs:
         if: matrix.variant == 'resolute'
         run: ./scripts/test-moby-opt-in.sh devcontainers-base:resolute
 
+  test-t3code-web-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Read versions
+        shell: bash
+        run: |
+          set -a
+          . src/images/t3code-web/versions.env
+          set +a
+          printf '%s\n' \
+          "T3CODE_VERSION=${T3CODE_VERSION}" \
+          "T3CODE_SOURCE_SHA256=${T3CODE_SOURCE_SHA256}" \
+          "VITE_PLUS_VERSION=${VITE_PLUS_VERSION}" >> "$GITHUB_ENV"
+
+      - name: Build image
+        uses: docker/build-push-action@v6
+        with:
+          context: ./src/images/t3code-web
+          build-args: |
+            T3CODE_VERSION=${{ env.T3CODE_VERSION }}
+            T3CODE_SOURCE_SHA256=${{ env.T3CODE_SOURCE_SHA256 }}
+            VITE_PLUS_VERSION=${{ env.VITE_PLUS_VERSION }}
+          load: true
+          tags: devcontainers-t3code-web:test
+
+      - name: Test image
+        run: ./src/images/t3code-web/test/test.sh devcontainers-t3code-web:test
+
   test-template:
     runs-on: ubuntu-latest
     steps:
