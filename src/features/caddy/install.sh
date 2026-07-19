@@ -98,6 +98,7 @@ fi
 install -d -m 0750 -o caddy -g caddy /var/lib/caddy /run/caddy
 install -d -m 0755 -o root -g root /etc/caddy
 install -d -m 2775 -o root -g caddy-config /etc/caddy/conf.d
+install -d -m 2775 -o root -g caddy-config /etc/caddy/required-hosts.d
 
 {
     echo '{'
@@ -114,6 +115,41 @@ install -d -m 2775 -o root -g caddy-config /etc/caddy/conf.d
 } >/etc/caddy/Caddyfile
 chmod 0644 /etc/caddy/Caddyfile
 
+cat >/usr/local/bin/caddy-wait-for-dns <<'EOF'
+#!/usr/bin/env bash
+set -euo pipefail
+
+directory=/etc/caddy/required-hosts.d
+
+while :; do
+    unresolved=()
+
+    shopt -s nullglob
+    files=("${directory}"/*.host)
+    shopt -u nullglob
+
+    for file in "${files[@]}"; do
+        while IFS= read -r hostname || [ -n "${hostname}" ]; do
+            hostname="${hostname%%#*}"
+            hostname="${hostname//[[:space:]]/}"
+            [ -n "${hostname}" ] || continue
+
+            if ! getent ahosts "${hostname}" >/dev/null 2>&1; then
+                unresolved+=("${hostname}")
+            fi
+        done <"${file}"
+    done
+
+    if [ "${#unresolved[@]}" -eq 0 ]; then
+        exit 0
+    fi
+
+    echo "[caddy-wait-for-dns] Waiting for DNS: ${unresolved[*]}" >&2
+    sleep 1
+done
+EOF
+chmod 0755 /usr/local/bin/caddy-wait-for-dns
+
 cat >/usr/local/bin/caddy-reload <<'EOF'
 #!/usr/bin/env bash
 set -euo pipefail
@@ -122,6 +158,7 @@ config=/etc/caddy/Caddyfile
 admin=unix//run/caddy/admin.sock
 
 caddy validate --config "${config}" --adapter caddyfile
+/usr/local/bin/caddy-wait-for-dns
 caddy reload --config "${config}" --adapter caddyfile --address "${admin}"
 EOF
 chmod 0755 /usr/local/bin/caddy-reload
@@ -158,6 +195,7 @@ touch "${caddy_service}/dependencies.d/base"
 cat >"${caddy_service}/run" <<'EOF'
 #!/command/with-contenv bash
 install -d -m 0750 -o caddy -g caddy /run/caddy
+/usr/local/bin/caddy-wait-for-dns
 exec s6-setuidgid caddy env HOME=/var/lib/caddy XDG_DATA_HOME=/var/lib/caddy/.local/share XDG_CONFIG_HOME=/var/lib/caddy/.config caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
 EOF
 chmod 0755 "${caddy_service}/run"

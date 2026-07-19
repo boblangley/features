@@ -24,6 +24,8 @@ if [ -n "${DNSNAME}" ]; then
     done
     [ -d /etc/caddy/conf.d ] \
         || err "dnsName requires the Caddy Feature and its /etc/caddy/conf.d directory."
+    [ -d /etc/caddy/required-hosts.d ] \
+        || err "dnsName requires a Caddy Feature version with DNS readiness support."
 fi
 
 service_user="$(pick_service_user "${SERVICEUSER}")"
@@ -91,6 +93,8 @@ ${DNSNAME} {
 }
 EOF
     chmod 0644 /etc/caddy/conf.d/t3code-server.caddy
+    printf '%s\n' "${DNSNAME}" >/etc/caddy/required-hosts.d/t3code-server.host
+    chmod 0644 /etc/caddy/required-hosts.d/t3code-server.host
     log "Configured https://${DNSNAME} to proxy to T3 Code on 127.0.0.1:${PORT}."
 fi
 

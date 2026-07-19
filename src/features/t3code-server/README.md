@@ -30,7 +30,7 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 }
 ```
 
-When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy`, which the Caddy watcher serves over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without the Caddy Feature; leave it empty to run T3 without a reverse proxy.
+When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy` and registers the name in `/etc/caddy/required-hosts.d/t3code-server.host`. Caddy waits for that name to resolve before requesting its certificate, then serves it over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without a Caddy Feature version that supports DNS readiness; leave it empty to run T3 without a reverse proxy.
 
 ## Pairing
 

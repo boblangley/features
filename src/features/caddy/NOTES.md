@@ -1,1 +1,1 @@
-Caddy runs as the package-provided `caddy` user. Add reverse-proxy site blocks as `.caddy` files beneath `/etc/caddy/conf.d`; the s6-supervised watcher applies valid changes without restarting the container.
+Caddy runs as the package-provided `caddy` user. Add reverse-proxy site blocks as `.caddy` files beneath `/etc/caddy/conf.d`; the s6-supervised watcher applies valid changes without restarting the container. Register DNS names required for automatic HTTPS in `/etc/caddy/required-hosts.d/*.host`; Caddy waits for them to resolve before startup and reload.
