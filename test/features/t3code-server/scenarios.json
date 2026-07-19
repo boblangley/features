@@ -8,5 +8,15 @@
         "serviceUser": "root"
       }
     }
+  },
+  "t3code-server-caddy": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "t3code-server": {
+        "port": "4123",
+        "dnsName": "t3.test-container.example.test"
+      },
+      "caddy": {}
+    }
   }
 }

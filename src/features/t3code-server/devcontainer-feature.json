@@ -1,6 +1,6 @@
 {
   "id": "t3code-server",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "name": "T3 Code Server",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/t3code-server",
   "description": "Installs T3 Code globally and configures an s6-overlay service that runs as the selected user on Debian/Ubuntu images.",
@@ -30,6 +30,11 @@
       "type": "string",
       "default": "automatic",
       "description": "User account to run the service as. `automatic` prefers the remote user, container user, `vscode`, then `root`."
+    },
+    "dnsName": {
+      "type": "string",
+      "default": "",
+      "description": "Optional fully qualified DNS name exposed through the Caddy Feature, such as `t3.dev-environment.example.test`."
     }
   },
   "dependsOn": {
@@ -37,5 +42,8 @@
       "version": "24"
     }
   },
-  "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
+  "installsAfter": [
+    "ghcr.io/devcontainers/features/common-utils",
+    "ghcr.io/wyrd-company/devcontainers/caddy"
+  ]
 }

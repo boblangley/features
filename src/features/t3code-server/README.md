@@ -13,6 +13,7 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 | `host`        | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                                  |
 | `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
 | `serviceUser` | string | `automatic` | User account that runs T3 and owns its runtime state. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
+| `dnsName`     | string | `""`        | Optional fully qualified DNS name exposed through the Caddy Feature.                                                                      |
 
 ## Example usage
 
@@ -22,11 +23,14 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
   "features": {
     "ghcr.io/wyrd-company/devcontainers/t3code-server:2": {
       "port": "3773",
-      "serveMode": "web"
+      "serveMode": "web",
+      "dnsName": "t3.dev-environment.example.test"
     }
   }
 }
 ```
+
+When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy`, which the Caddy watcher serves over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without the Caddy Feature; leave it empty to run T3 without a reverse proxy.
 
 ## Pairing
 

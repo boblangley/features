@@ -10,6 +10,22 @@ check_debian_family
 ensure_s6_overlay
 ensure_apt_packages build-essential ca-certificates python3
 
+[[ "${PORT}" =~ ^[0-9]+$ ]] || err "port must be an integer between 1 and 65535."
+[ "${#PORT}" -le 5 ] || err "port must be an integer between 1 and 65535."
+((10#${PORT} >= 1 && 10#${PORT} <= 65535)) || err "port must be an integer between 1 and 65535."
+
+if [ -n "${DNSNAME}" ]; then
+    [ "${#DNSNAME}" -le 253 ] || err "dnsName exceeds the 253-character DNS limit."
+    IFS=. read -r -a dns_labels <<<"${DNSNAME}"
+    [ "${#dns_labels[@]}" -ge 2 ] || err "dnsName must be a fully qualified DNS name."
+    for label in "${dns_labels[@]}"; do
+        [[ "${label}" =~ ^[A-Za-z0-9]([A-Za-z0-9-]{0,61}[A-Za-z0-9])?$ ]] \
+            || err "dnsName contains an invalid DNS label: '${label}'."
+    done
+    [ -d /etc/caddy/conf.d ] \
+        || err "dnsName requires the Caddy Feature and its /etc/caddy/conf.d directory."
+fi
+
 service_user="$(pick_service_user "${SERVICEUSER}")"
 service_home="$(user_home_dir "${service_user}")"
 [ -n "${service_home}" ] || err "Unable to resolve the home directory for ${service_user}."
@@ -67,6 +83,16 @@ exec s6-setuidgid ${quoted_user} /usr/local/bin/t3code-server
 EOF
 chmod 0755 "${service_dir}/run"
 touch /etc/s6-overlay/user-bundles.d/user/contents.d/t3code-server
+
+if [ -n "${DNSNAME}" ]; then
+    cat >/etc/caddy/conf.d/t3code-server.caddy <<EOF
+${DNSNAME} {
+    reverse_proxy 127.0.0.1:${PORT}
+}
+EOF
+    chmod 0644 /etc/caddy/conf.d/t3code-server.caddy
+    log "Configured https://${DNSNAME} to proxy to T3 Code on 127.0.0.1:${PORT}."
+fi
 
 run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version >/dev/null
 log "Installed T3 Code $(run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version)"
