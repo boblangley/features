@@ -14,6 +14,7 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 | `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
 | `serviceUser` | string | `automatic` | User account that runs T3 and owns its runtime state. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
 | `dnsName`     | string | `""`        | Optional fully qualified DNS name exposed through the Caddy Feature.                                                                      |
+| `forwardVSCodeSshAgent` | boolean | `true` | Expose VS Code's forwarded SSH agent to T3 and its child processes through a stable runtime socket path. |
 
 ## Example usage
 
@@ -31,6 +32,8 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 ```
 
 When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy` and registers the name in `/etc/caddy/required-hosts.d/t3code-server.host`. Caddy waits for that name to resolve before requesting its certificate, then serves it over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without a Caddy Feature version that supports DNS readiness; leave it empty to run T3 without a reverse proxy.
+
+By default, an s6 service discovers the newest live `/tmp/vscode-ssh-auth-*.sock` socket and atomically links it at `/run/t3code/ssh-agent.sock`. T3 always inherits that stable path, so agents it launches can use SSH forwarding even when VS Code attaches after container startup or replaces its socket during reconnection. Set `forwardVSCodeSshAgent` to `false` to omit this integration.
 
 ## Pairing
 

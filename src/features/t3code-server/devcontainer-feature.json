@@ -1,6 +1,6 @@
 {
   "id": "t3code-server",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "name": "T3 Code Server",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/t3code-server",
   "description": "Installs T3 Code globally and configures an s6-overlay service that runs as the selected user on Debian/Ubuntu images.",
@@ -35,6 +35,11 @@
       "type": "string",
       "default": "",
       "description": "Optional fully qualified DNS name exposed through the Caddy Feature, such as `t3.dev-environment.example.test`."
+    },
+    "forwardVSCodeSshAgent": {
+      "type": "boolean",
+      "default": true,
+      "description": "Expose VS Code's forwarded SSH agent to T3 and its child processes through a stable runtime socket path."
     }
   },
   "dependsOn": {

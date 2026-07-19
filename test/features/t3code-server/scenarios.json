@@ -5,7 +5,8 @@
       "t3code-server": {
         "port": "4123",
         "host": "127.0.0.1",
-        "serviceUser": "root"
+        "serviceUser": "root",
+        "forwardVSCodeSshAgent": false
       }
     }
   },
