@@ -1,0 +1,11 @@
+{
+  "caddy-custom-acme": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "caddy": {
+        "acmeCa": "https://acme.example.test/acme/local/directory",
+        "acmeCaRoot": "/etc/ssl/certs/ca-certificates.crt"
+      }
+    }
+  }
+}
