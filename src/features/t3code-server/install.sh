@@ -8,12 +8,7 @@ source "$(dirname "$0")/common.sh"
 require_root
 check_debian_family
 ensure_s6_overlay
-ensure_apt_packages build-essential ca-certificates openssh-client python3
-
-case "${FORWARDVSCODESSHAGENT}" in
-    true|false) ;;
-    *) err "forwardVSCodeSshAgent must be true or false." ;;
-esac
+ensure_apt_packages build-essential ca-certificates python3
 
 [[ "${PORT}" =~ ^[0-9]+$ ]] || err "port must be an integer between 1 and 65535."
 [ "${#PORT}" -le 5 ] || err "port must be an integer between 1 and 65535."
@@ -36,7 +31,6 @@ fi
 service_user="$(pick_service_user "${SERVICEUSER}")"
 service_home="$(user_home_dir "${service_user}")"
 [ -n "${service_home}" ] || err "Unable to resolve the home directory for ${service_user}."
-service_group="$(id -gn "${service_user}")"
 
 install -d -m 0755 -o "${service_user}" -g "$(id -gn "${service_user}")" \
     "${service_home}/.t3"
@@ -85,74 +79,9 @@ printf 'longrun\n' >"${service_dir}/type"
 touch "${service_dir}/dependencies.d/base"
 
 printf -v quoted_user '%q' "${service_user}"
-if [ "${FORWARDVSCODESSHAGENT}" = true ]; then
-    install -d -m 0700 -o "${service_user}" -g "${service_group}" /run/t3code
-
-    cat >/usr/local/bin/t3code-ssh-agent-link <<'EOF'
-#!/usr/bin/env bash
-set -euo pipefail
-
-stable_socket=/run/t3code/ssh-agent.sock
-
-while :; do
-    candidate=
-
-    shopt -s nullglob
-    sockets=(/tmp/vscode-ssh-auth-*.sock)
-    shopt -u nullglob
-
-    for socket in "${sockets[@]}"; do
-        [ -S "${socket}" ] || continue
-
-        if SSH_AUTH_SOCK="${socket}" ssh-add -l >/dev/null 2>&1; then
-            :
-        elif [ "$?" -ne 1 ]; then
-            continue
-        fi
-
-        if [ -z "${candidate}" ] || [ "${socket}" -nt "${candidate}" ]; then
-            candidate="${socket}"
-        fi
-    done
-
-    if [ -n "${candidate}" ]; then
-        if [ "$(readlink "${stable_socket}" 2>/dev/null || true)" != "${candidate}" ]; then
-            ln -s "${candidate}" "${stable_socket}.new"
-            mv -Tf "${stable_socket}.new" "${stable_socket}"
-            echo "[t3code-ssh-agent-link] Forwarding ${stable_socket} to ${candidate}."
-        fi
-    elif [ -L "${stable_socket}" ]; then
-        rm -f "${stable_socket}"
-        echo "[t3code-ssh-agent-link] No live VS Code SSH agent is available."
-    fi
-
-    sleep 1
-done
-EOF
-    chmod 0755 /usr/local/bin/t3code-ssh-agent-link
-
-    agent_service_dir=/etc/s6-overlay/s6-rc.d/t3code-ssh-agent-link
-    install -d -m 0755 "${agent_service_dir}/dependencies.d"
-    printf 'longrun\n' >"${agent_service_dir}/type"
-    touch "${agent_service_dir}/dependencies.d/base"
-    printf -v quoted_group '%q' "${service_group}"
-    cat >"${agent_service_dir}/run" <<EOF
-#!/command/with-contenv bash
-install -d -m 0700 -o ${quoted_user} -g ${quoted_group} /run/t3code
-exec s6-setuidgid ${quoted_user} /usr/local/bin/t3code-ssh-agent-link
-EOF
-    chmod 0755 "${agent_service_dir}/run"
-    touch /etc/s6-overlay/user-bundles.d/user/contents.d/t3code-ssh-agent-link
-    touch "${service_dir}/dependencies.d/t3code-ssh-agent-link"
-
-    ssh_agent_environment='env SSH_AUTH_SOCK=/run/t3code/ssh-agent.sock'
-else
-    ssh_agent_environment='env'
-fi
-
 cat >"${service_dir}/run" <<EOF
 #!/command/with-contenv bash
-exec s6-setuidgid ${quoted_user} ${ssh_agent_environment} /usr/local/bin/t3code-server
+exec s6-setuidgid ${quoted_user} /usr/local/bin/t3code-server
 EOF
 chmod 0755 "${service_dir}/run"
 touch /etc/s6-overlay/user-bundles.d/user/contents.d/t3code-server
