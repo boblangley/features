@@ -1,6 +1,6 @@
 # Dev containers
 
-Dev Container images, Templates, and Features published by Bob Langley to GitHub Container Registry.
+Dev Container images, Templates, and Features published by Wyrd Company to GitHub Container Registry.
 
 ## Ubuntu image
 
