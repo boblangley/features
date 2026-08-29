@@ -24,6 +24,7 @@ RUN curl -fsSL \
     && echo "${T3CODE_SOURCE_SHA256}  /tmp/t3code.tar.gz" | sha256sum --check --strict \
     && tar -xzf /tmp/t3code.tar.gz --strip-components=1 \
     && rm /tmp/t3code.tar.gz \
+    && rm -rf /src/infra/relay \
     && npm install --global "vite-plus@${VITE_PLUS_VERSION}" \
     && vp install --filter '@t3tools/scripts...' --filter '@t3tools/web...'
 
