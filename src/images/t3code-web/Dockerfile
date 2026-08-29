@@ -13,7 +13,7 @@ RUN test -n "${T3CODE_VERSION}" \
     && test -n "${T3CODE_SOURCE_SHA256}" \
     && test -n "${VITE_PLUS_VERSION}" \
     && apt-get update \
-    && apt-get install -y --no-install-recommends ca-certificates curl \
+    && apt-get install -y --no-install-recommends ca-certificates curl git \
     && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /src
