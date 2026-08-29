@@ -15,7 +15,7 @@ The package, executable, and Codex state remain owned by the user rather than ro
 ```json
 {
   "features": {
-    "ghcr.io/wyrd-company/devcontainers/codex-cli:2": {}
+    "ghcr.io/wyrd-company/devcontainers/codex-cli:1": {}
   }
 }
 ```

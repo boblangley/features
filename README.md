@@ -29,9 +29,9 @@ It defaults to Ubuntu 24.04 LTS (`noble`) and can select Ubuntu 26.04 LTS (`reso
 
 ## Features
 
-- `ghcr.io/wyrd-company/devcontainers/codex-cli:2`
+- `ghcr.io/wyrd-company/devcontainers/codex-cli:1`
 - `ghcr.io/wyrd-company/devcontainers/claude-code-cli:1`
-- `ghcr.io/wyrd-company/devcontainers/t3code-server:2`
+- `ghcr.io/wyrd-company/devcontainers/t3code-server:1`
 - `ghcr.io/wyrd-company/devcontainers/go:1`
 - `ghcr.io/wyrd-company/devcontainers/sshd:1`
 - `ghcr.io/wyrd-company/devcontainers/docker-outside-of-docker:1`
