@@ -21,7 +21,7 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 {
   "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
   "features": {
-    "ghcr.io/wyrd-company/devcontainers/t3code-server:2": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
       "port": "3773",
       "serveMode": "web",
       "dnsName": "t3.dev-environment.example.test"
