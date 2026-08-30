@@ -98,7 +98,17 @@ for required_path in /init /etc/s6-overlay/s6-rc.d /etc/s6-overlay/user-bundles.
     fi
 done
 
+# Host keys are generated into /etc/ssh by `ssh-keygen -A` below. They act as
+# a build-time seed: the s6 run script copies them into /etc/ssh/keys (a named
+# volume) on first boot, so the server fingerprint survives container rebuilds.
 ssh-keygen -A
+
+cat >/etc/ssh/sshd_config.d/10-persistent-host-keys.conf <<EOF
+HostKey /etc/ssh/keys/ssh_host_rsa_key
+HostKey /etc/ssh/keys/ssh_host_ecdsa_key
+HostKey /etc/ssh/keys/ssh_host_ed25519_key
+EOF
+
 service_dir="/etc/s6-overlay/s6-rc.d/sshd"
 mkdir -p "${service_dir}/dependencies.d"
 printf 'longrun\n' > "${service_dir}/type"
@@ -107,7 +117,23 @@ touch /etc/s6-overlay/user-bundles.d/user/contents.d/sshd
 
 tee "${service_dir}/run" > /dev/null << 'EOF'
 #!/command/with-contenv sh
-mkdir -p /run/sshd
+mkdir -p /run/sshd /etc/ssh/keys
+# Seed the persistent host-key volume from the image on first boot; generate
+# on the spot if the volume is empty and the image has no seed (e.g. the
+# Feature was installed without running ssh-keygen).
+for keytype in rsa ecdsa ed25519; do
+    key="/etc/ssh/keys/ssh_host_${keytype}_key"
+    if [ ! -f "${key}" ]; then
+        if [ -f "/etc/ssh/ssh_host_${keytype}_key" ]; then
+            cp "/etc/ssh/ssh_host_${keytype}_key" "${key}"
+            cp "/etc/ssh/ssh_host_${keytype}_key.pub" "${key}.pub"
+        else
+            ssh-keygen -t "${keytype}" -N '' -f "${key}"
+        fi
+        chmod 0600 "${key}"
+        chmod 0644 "${key}.pub"
+    fi
+done
 exec /usr/sbin/sshd -D -e
 EOF
 chmod 0755 "${service_dir}/run"

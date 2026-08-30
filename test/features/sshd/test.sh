@@ -12,5 +12,7 @@ check "public key authentication is required" grep -qx 'AuthenticationMethods pu
 check "root login is disabled" grep -qx 'PermitRootLogin no' /etc/ssh/sshd_config.d/00-devcontainer-key-only.conf
 check "password authentication is disabled" grep -qx 'PasswordAuthentication no' /etc/ssh/sshd_config.d/00-devcontainer-key-only.conf
 check "keyboard-interactive authentication is disabled" grep -qx 'KbdInteractiveAuthentication no' /etc/ssh/sshd_config.d/00-devcontainer-key-only.conf
+check "host keys are read from the persistent volume" grep -qx 'HostKey /etc/ssh/keys/ssh_host_ed25519_key' /etc/ssh/sshd_config.d/10-persistent-host-keys.conf
+check "run script seeds persistent host keys" grep -q '/etc/ssh/keys/ssh_host_ed25519_key' /etc/s6-overlay/s6-rc.d/sshd/run
 
 reportResults

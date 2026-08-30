@@ -74,3 +74,17 @@ While the some services automates SSH setup (e.g., when using the GitHub CLI for
 This Feature should work on recent versions of Debian/Ubuntu-based distributions with the `apt` package manager installed.
 
 `bash` is required to execute the `install.sh` script.
+
+## Persisted state
+
+This Feature mounts a named Docker volume into the dev container so the SSH server fingerprint is stable across rebuilds:
+
+- `sshd-etc-ssh-host-keys-${devcontainerId}` → `/etc/ssh/keys`
+
+Host keys are generated at image build time and copied into this volume on first boot. Rebuilding the container (which re-runs the Feature's install step and regenerates the build-time keys) does not change the fingerprint because the volume takes precedence. To rotate the host keys, remove the volume:
+
+```bash
+docker volume rm sshd-etc-ssh-host-keys-<devcontainerId>
+```
+
+Because the fingerprint becomes stable, the `-o StrictHostKeyChecking=no` flags in the usage examples above are no longer required for reconnecting to the same dev container and can be dropped once you have accepted its host key.

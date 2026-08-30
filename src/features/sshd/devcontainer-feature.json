@@ -1,6 +1,6 @@
 {
   "id": "sshd",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "SSH server",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/sshd",
   "description": "Adds an SSH server supervised as a native s6-overlay service.",
@@ -29,5 +29,12 @@
       }
     }
   },
+  "mounts": [
+    {
+      "source": "sshd-etc-ssh-host-keys-${devcontainerId}",
+      "target": "/etc/ssh/keys",
+      "type": "volume"
+    }
+  ],
   "installsAfter": ["ghcr.io/devcontainers/features/common-utils"]
 }
