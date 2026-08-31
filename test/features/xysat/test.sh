@@ -9,6 +9,8 @@ check "xySat package is installed" test -f /opt/xyops/satellite/package.json
 check "xySat bundled runtime is executable" test -x /opt/xyops/satellite/bin/node
 check "xySat launcher is executable" test -x /usr/local/bin/xysat-run
 check "xySat bootstrap is executable" test -x /usr/local/bin/xysat-bootstrap
+check "xySat ownership reconciler is executable" test -x /usr/local/bin/xysat-fix-ownership
+check "xySat ownership reconciles after UID remapping" sudo /usr/local/bin/xysat-fix-ownership
 check "xySat installation belongs to the service user" test "$(stat -c %U /opt/xyops/satellite)" = vscode
 check "xySat service is registered" test -f /etc/s6-overlay/user-bundles.d/user/contents.d/xysat
 check "xySat service is a longrun" grep -qx longrun /etc/s6-overlay/s6-rc.d/xysat/type
@@ -19,6 +21,12 @@ check "xySat bootstraps before dropping privileges" bash -c '
     bootstrap_line="$(grep -n xysat-bootstrap /etc/s6-overlay/s6-rc.d/xysat/run | cut -d: -f1)"
     setuid_line="$(grep -n s6-setuidgid /etc/s6-overlay/s6-rc.d/xysat/run | cut -d: -f1)"
     test "${bootstrap_line}" -lt "${setuid_line}"
+'
+# shellcheck disable=SC2016
+check "xySat reconciles ownership before dropping privileges" bash -c '
+    ownership_line="$(grep -n xysat-fix-ownership /etc/s6-overlay/s6-rc.d/xysat/run | cut -d: -f1)"
+    setuid_line="$(grep -n s6-setuidgid /etc/s6-overlay/s6-rc.d/xysat/run | cut -d: -f1)"
+    test "${ownership_line}" -lt "${setuid_line}"
 '
 # shellcheck disable=SC2016
 check "bootstrap reads the API key from a file" grep -q -- '--data-urlencode "t@${normalized_key}"' /usr/local/bin/xysat-bootstrap

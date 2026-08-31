@@ -95,10 +95,28 @@ tar -xzf "${archive}" -C "${install_dir}"
 chown -R "${service_user}:${service_group}" "${install_dir}"
 install -d -m 0700 -o "${service_user}" -g "${service_group}" /etc/xysat
 
+printf -v quoted_install_dir '%q' "${install_dir}"
 printf -v quoted_conductor_url '%q' "${CONDUCTORURL%/}"
 printf -v quoted_api_key_file '%q' "${APIKEYFILE}"
 printf -v quoted_service_user '%q' "${service_user}"
 printf -v quoted_service_group '%q' "${service_group}"
+cat >/usr/local/bin/xysat-fix-ownership <<EOF
+#!/usr/bin/env bash
+set -euo pipefail
+
+install_dir=${quoted_install_dir}
+service_user=${quoted_service_user}
+service_group=${quoted_service_group}
+service_uid="\$(id -u "\${service_user}")"
+
+if [ "\$(stat -c %u "\${install_dir}")" != "\${service_uid}" ]; then
+    chown -R "\${service_user}:\${service_group}" "\${install_dir}"
+fi
+chown -R "\${service_user}:\${service_group}" /etc/xysat
+chmod 0700 /etc/xysat
+EOF
+chmod 0755 /usr/local/bin/xysat-fix-ownership
+
 cat >/usr/local/bin/xysat-bootstrap <<EOF
 #!/usr/bin/env bash
 set -euo pipefail
@@ -173,6 +191,7 @@ printf -v quoted_user '%q' "${service_user}"
 printf -v quoted_home '%q' "${service_home}"
 cat >"${service_dir}/run" <<EOF
 #!/command/with-contenv bash
+/usr/local/bin/xysat-fix-ownership
 if ! /usr/local/bin/xysat-bootstrap; then
     sleep 5
     exit 1
