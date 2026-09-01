@@ -34,6 +34,7 @@ jobs:
       matrix:
         feature:
           - caddy
+          - dagu
           - t3code-server
           - xysat
     steps:
@@ -64,6 +65,7 @@ jobs:
       matrix:
         feature:
           - caddy
+          - dagu
           - go
           - sshd
           - docker-outside-of-docker
@@ -92,6 +94,15 @@ jobs:
 
       - name: Test Caddy runtime and hot reload
         run: ./scripts/test-caddy-runtime.sh
+
+  test-dagu-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Test Dagu runtime under s6
+        run: ./scripts/test-dagu-runtime.sh
 
   test-image:
     runs-on: ubuntu-latest
