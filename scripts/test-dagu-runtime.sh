@@ -58,7 +58,11 @@ assert_install_rejected() {
         echo "Invalid configuration was accepted: ${description}." >&2
         exit 1
     fi
-    printf '%s\n' "${output}" | grep -Fq "${expected}"
+    if ! printf '%s\n' "${output}" | grep -Fq "${expected}"; then
+        echo "Configuration was rejected for the wrong reason: ${description}." >&2
+        printf '%s\n' "${output}" >&2
+        exit 1
+    fi
 }
 
 common_options=(
