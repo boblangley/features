@@ -1,0 +1,24 @@
+{
+  "dagu-custom-options": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "dagu": {
+        "version": "v2.16.1",
+        "host": "localhost",
+        "port": "8123",
+        "serviceUser": "root"
+      }
+    }
+  },
+  "dagu-caddy": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "dagu": {
+        "host": "0.0.0.0",
+        "port": "8123",
+        "dnsName": "workflow.test-container.example.test"
+      },
+      "caddy": {}
+    }
+  }
+}

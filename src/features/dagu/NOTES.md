@@ -1,0 +1,1 @@
+Dagu runs `start-all` under s6-overlay as the selected devcontainer user. Configuration, DAG definitions, logs, and state use Dagu's native per-user paths and are not persisted by this Feature. Add per-container bind mounts when persistence is required. Set `dnsName` with the Caddy Feature to expose Dagu through HTTPS.
