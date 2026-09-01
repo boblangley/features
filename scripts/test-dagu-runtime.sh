@@ -52,6 +52,7 @@ assert_install_rejected() {
     if output="$(docker run --rm \
         --entrypoint /bin/bash \
         --volume "${repo_root}/src/features/dagu:/feature:ro" \
+        --volume "${repo_root}/test/features/dagu/failing-checksum-bin:/test-bin:ro" \
         "${image}" \
         -c 'env "$@" /feature/install.sh' bash "$@" 2>&1)"; then
         echo "Invalid configuration was accepted: ${description}." >&2
@@ -82,5 +83,10 @@ assert_install_rejected \
     "dnsName requires the Caddy Feature" \
     VERSION=latest HOST=127.0.0.1 PORT=8080 SERVICEUSER=automatic \
     DNSNAME=workflow.test-container.example.test _REMOTE_USER=vscode
+assert_install_rejected \
+    "release archive with a failed checksum" \
+    "Checksum verification failed" \
+    VERSION=latest HOST=127.0.0.1 PORT=8080 SERVICEUSER=automatic DNSNAME= \
+    _REMOTE_USER=vscode PATH=/test-bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 
 printf 'Dagu s6 runtime checks passed.\n'
