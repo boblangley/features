@@ -15,7 +15,7 @@ Both variants support `amd64` and `arm64`.
 
 ## T3 Code web client image
 
-`ghcr.io/wyrd-company/devcontainers/t3code-web` contains the unmodified static web client built from a checksum-verified upstream T3 Code release. Versioned and `latest` tags support `amd64` and `arm64`.
+`ghcr.io/wyrd-company/t3code-web` contains the unmodified static web client. The [`wyrd-company/t3code`](https://github.com/wyrd-company/t3code) fork owns its build and publication. Versioned and `latest` tags support `amd64` and `arm64`.
 
 ## Ubuntu Template
 
