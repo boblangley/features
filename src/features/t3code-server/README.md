@@ -6,14 +6,15 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 
 ## Options
 
-| Option        | Type   | Default     | Description                                                                                                                               |
-| ------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `version`     | string | `latest`    | T3 Code npm package version to install.                                                                                                   |
-| `port`        | string | `3773`      | Port exposed by the T3 Code server.                                                                                                       |
-| `host`        | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                                  |
-| `serveMode`   | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
-| `serviceUser` | string | `automatic` | User account that runs T3 and owns its runtime state. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
-| `dnsName`     | string | `""`        | Optional fully qualified DNS name exposed through the Caddy Feature.                                                                      |
+| Option          | Type   | Default     | Description                                                                                                                               |
+| --------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| `version`       | string | `latest`    | T3 Code npm package version to install when `packageSource` is empty.                                                                     |
+| `packageSource` | string | `""`        | Optional npm package spec or tarball URL to install instead of `t3@<version>`.                                                            |
+| `port`          | string | `3773`      | Port exposed by the T3 Code server.                                                                                                       |
+| `host`          | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                                  |
+| `serveMode`     | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
+| `serviceUser`   | string | `automatic` | User account that runs T3 and owns its runtime state. Automatic selection prefers the remote user, container user, `vscode`, then `root`. |
+| `dnsName`       | string | `""`        | Optional fully qualified DNS name exposed through the Caddy Feature.                                                                      |
 
 ## Example usage
 
@@ -29,6 +30,32 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
   }
 }
 ```
+
+To select an npm package spec directly:
+
+```json
+{
+  "features": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
+      "packageSource": "t3@0.0.37"
+    }
+  }
+}
+```
+
+To install the Wyrd Company fork from its public release tarball:
+
+```json
+{
+  "features": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
+      "packageSource": "https://github.com/wyrd-company/t3code/releases/download/server/0.0.37-wyrd.1/t3-0.0.37-wyrd.1.tgz"
+    }
+  }
+}
+```
+
+When `packageSource` is empty, the Feature installs `t3@<version>`. This preserves the default `t3@latest` behavior. A non-empty `packageSource` is passed directly to `npm install` and takes precedence over `version`.
 
 When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy` and registers the name in `/etc/caddy/required-hosts.d/t3code-server.host`. Caddy waits for that name to resolve before requesting its certificate, then serves it over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without a Caddy Feature version that supports DNS readiness; leave it empty to run T3 without a reverse proxy.
 

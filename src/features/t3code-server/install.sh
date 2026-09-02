@@ -35,7 +35,7 @@ service_home="$(user_home_dir "${service_user}")"
 install -d -m 0755 -o "${service_user}" -g "$(id -gn "${service_user}")" \
     "${service_home}/.t3"
 
-package_spec="t3@${VERSION}"
+package_spec="${PACKAGESOURCE:-t3@${VERSION}}"
 log "Installing ${package_spec} globally"
 env \
     NPM_CONFIG_ENGINE_STRICT=true \
