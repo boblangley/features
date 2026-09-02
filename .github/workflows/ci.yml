@@ -36,7 +36,6 @@ jobs:
           - caddy
           - dagu
           - t3code-server
-          - xysat
     steps:
       - name: Checkout
         uses: actions/checkout@v5
@@ -70,7 +69,6 @@ jobs:
           - sshd
           - docker-outside-of-docker
           - docker-in-docker
-          - xysat
         baseImage:
           - ghcr.io/wyrd-company/devcontainers/base:noble
         include:

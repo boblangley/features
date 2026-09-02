@@ -1,1 +1,0 @@
-xySat runs as the selected devcontainer user under the `xysat` s6-overlay service. Its identity and conductor configuration persist in `/etc/xysat/config.json`. Automatic first-start registration uses `conductorUrl` and an API key mounted at `apiKeyFile`. The conductor must be reachable from inside the devcontainer.
