@@ -2,6 +2,8 @@
 
 import json
 import pathlib
+import re
+import subprocess
 import unittest
 
 
@@ -21,12 +23,31 @@ class SourceContractTests(unittest.TestCase):
         options = scenarios["t3code-server-fork-package-source"]["features"]["t3code-server"]
         assertion = (TEST / "t3code-server-fork-package-source.sh").read_text()
         self.assertEqual(options["packageSource"], "github:wyrd-company/t3code")
-        self.assertIn(f't3 v{options["version"]}', assertion)
+        version_assertion = re.search(
+            r'^check "fork T3 reports the published version" test "\$\(/usr/local/bin/t3 --version\)" = "t3 v([^" ]+)"$',
+            assertion,
+            re.MULTILINE,
+        )
+        self.assertIsNotNone(version_assertion)
+        self.assertEqual(version_assertion.group(1), options["version"])
 
-    def test_installer_checks_resolved_version_after_global_install(self):
-        installer = (FEATURE / "install.sh").read_text()
-        self.assertIn('npm install --global --prefix /usr/local "${package_spec}"', installer)
-        self.assertIn('[ "${installed_version}" = "t3 v${resolved_version}" ]', installer)
+    def test_installed_version_mismatch_fails(self):
+        result = subprocess.run(
+            [FEATURE / "verify-version.sh", "t3 v1.2.3-wyrd.4", "1.2.3-wyrd.5"],
+            text=True,
+            capture_output=True,
+        )
+        self.assertNotEqual(result.returncode, 0)
+        self.assertEqual(
+            result.stderr,
+            "ERROR: Installed T3 Code version 't3 v1.2.3-wyrd.4' does not match resolved version '1.2.3-wyrd.5'.\n",
+        )
+
+    def test_installed_version_agreement_passes(self):
+        subprocess.run(
+            [FEATURE / "verify-version.sh", "t3 v1.2.3-wyrd.4", "1.2.3-wyrd.4"],
+            check=True,
+        )
 
     def test_readme_documents_explicit_and_latest_github_examples(self):
         readme = (FEATURE / "README.md").read_text()

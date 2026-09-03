@@ -31,6 +31,9 @@ class ResolverTests(unittest.TestCase):
     def test_empty_source_preserves_default_npm_spec(self):
         self.assertEqual(resolver.resolve("", "latest"), ("t3@latest", ""))
 
+    def test_explicit_default_npm_version_is_verified(self):
+        self.assertEqual(resolver.resolve("", "1.2.3"), ("t3@1.2.3", "1.2.3"))
+
     def test_explicit_npm_spec_and_url_remain_unchanged(self):
         for source in ("example-package@1.2.3", "https://packages.example.test/tool.tgz"):
             with self.subTest(source=source):
@@ -73,19 +76,36 @@ class ResolverTests(unittest.TestCase):
             resolver.select_latest(["refs/tags/server/3.0.0-alpha.1"])
 
     def test_github_repository_identity_is_validated(self):
-        source = "github:sample-owner/sample-repository/../../unexpected"
-        with self.assertRaisesRegex(ValueError, "github:<owner>/<repository>"):
-            resolver.resolve(source, "latest")
+        invalid_sources = (
+            "github:sample-owner/sample-repository/../../unexpected",
+            "github:sample-owner/.",
+            "github:sample-owner/..",
+            "github:sample-owner/-sample-repository",
+            "github:sample-owner/.sample-repository",
+        )
+        for source in invalid_sources:
+            with self.subTest(source=source), self.assertRaisesRegex(ValueError, "github:<owner>/<repository>"):
+                resolver.resolve(source, "latest")
 
-    def test_tag_discovery_is_anonymous_and_paginates(self):
-        first = [{"ref": f"refs/tags/server/1.0.0-wyrd.{number}"} for number in range(1, 101)]
-        second = [{"ref": "refs/tags/server/1.0.0-wyrd.101"}]
-        with mock.patch.object(resolver.urllib.request, "urlopen", side_effect=[Response(first), Response(second)]) as opened:
+    def test_tag_discovery_uses_one_anonymous_matching_refs_request(self):
+        payload = [{"ref": f"refs/tags/server/1.0.0-wyrd.{number}"} for number in range(1, 102)]
+        with mock.patch.object(resolver.urllib.request, "urlopen", return_value=Response(payload)) as opened:
             refs = resolver.fetch_refs("sample-owner", "sample-repository")
         self.assertEqual(len(refs), 101)
-        self.assertNotIn("Authorization", opened.call_args_list[0].args[0].headers)
-        self.assertEqual(opened.call_args_list[0].kwargs["timeout"], 30)
-        self.assertIn("page=2", opened.call_args_list[1].args[0].full_url)
+        opened.assert_called_once()
+        request = opened.call_args.args[0]
+        self.assertEqual(
+            request.full_url,
+            "https://api.github.com/repos/sample-owner/sample-repository/git/matching-refs/tags/server/",
+        )
+        self.assertEqual(resolver.urllib.parse.urlsplit(request.full_url).query, "")
+        self.assertNotIn("Authorization", request.headers)
+        self.assertEqual(opened.call_args.kwargs["timeout"], 30)
+
+    def test_tag_discovery_rejects_non_list_response(self):
+        with mock.patch.object(resolver.urllib.request, "urlopen", return_value=Response({"tag_name": "unrelated"})):
+            with self.assertRaisesRegex(ValueError, "invalid tag response"):
+                resolver.fetch_refs("sample-owner", "sample-repository")
 
 
 if __name__ == "__main__":
