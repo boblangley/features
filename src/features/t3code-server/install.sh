@@ -102,8 +102,5 @@ EOF
 fi
 
 installed_version="$(run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version)"
-if [ -n "${resolved_version}" ]; then
-    [ "${installed_version}" = "t3 v${resolved_version}" ] \
-        || err "Installed T3 Code version '${installed_version}' does not match resolved version '${resolved_version}'."
-fi
+"$(dirname "$0")/verify-version.sh" "${installed_version}" "${resolved_version}"
 log "Installed T3 Code ${installed_version}"

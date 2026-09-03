@@ -7,7 +7,10 @@ import urllib.parse
 import urllib.request
 
 
-GITHUB_SOURCE = re.compile(r"^github:([A-Za-z0-9](?:[A-Za-z0-9-]{0,38}))/([A-Za-z0-9_.-]+)$")
+GITHUB_SOURCE = re.compile(
+    r"^github:([A-Za-z0-9](?:[A-Za-z0-9-]{0,37}[A-Za-z0-9])?)/"
+    r"([A-Za-z0-9](?:[A-Za-z0-9_.-]{0,98}[A-Za-z0-9_])?)$"
+)
 SEMVER = re.compile(
     r"^(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)"
     r"(?:-((?:0|[1-9A-Za-z-][0-9A-Za-z-]*)(?:\.(?:0|[1-9A-Za-z-][0-9A-Za-z-]*))*))?"
@@ -39,24 +42,16 @@ def select_latest(refs):
 
 
 def fetch_refs(owner, repository, api_base="https://api.github.com"):
-    refs = []
-    page = 1
-    while True:
-        path = f"/repos/{owner}/{repository}/git/matching-refs/tags/server/"
-        url = f"{api_base.rstrip('/')}{path}?per_page=100&page={page}"
-        request = urllib.request.Request(
-            url,
-            headers={"Accept": "application/vnd.github+json", "User-Agent": "t3code-server-feature"},
-        )
-        with urllib.request.urlopen(request, timeout=30) as response:
-            payload = json.load(response)
-        if not isinstance(payload, list):
-            raise ValueError("GitHub returned an invalid tag response.")
-        page_refs = [item.get("ref", "") for item in payload if isinstance(item, dict)]
-        refs.extend(page_refs)
-        if len(payload) < 100:
-            return refs
-        page += 1
+    path = f"/repos/{owner}/{repository}/git/matching-refs/tags/server/"
+    request = urllib.request.Request(
+        f"{api_base.rstrip('/')}{path}",
+        headers={"Accept": "application/vnd.github+json", "User-Agent": "t3code-server-feature"},
+    )
+    with urllib.request.urlopen(request, timeout=30) as response:
+        payload = json.load(response)
+    if not isinstance(payload, list):
+        raise ValueError("GitHub returned an invalid tag response.")
+    return [item.get("ref", "") for item in payload if isinstance(item, dict)]
 
 
 def resolve(package_source, version, api_base="https://api.github.com", web_base="https://github.com"):
@@ -64,7 +59,8 @@ def resolve(package_source, version, api_base="https://api.github.com", web_base
     if not match:
         if package_source.startswith("github:"):
             raise ValueError("GitHub package source must have the form github:<owner>/<repository>.")
-        return package_source or f"t3@{version}", ""
+        expected_version = version if not package_source and version.lower() != "latest" else ""
+        return package_source or f"t3@{version}", expected_version
 
     owner, repository = match.groups()
     resolved_version = select_latest(fetch_refs(owner, repository, api_base)) if version.lower() == "latest" else version
