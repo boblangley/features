@@ -59,7 +59,7 @@ def resolve(package_source, version, api_base="https://api.github.com", web_base
     if not match:
         if package_source.startswith("github:"):
             raise ValueError("GitHub package source must have the form github:<owner>/<repository>.")
-        expected_version = version if not package_source and version.lower() != "latest" else ""
+        expected_version = version if not package_source and SEMVER.fullmatch(version) else ""
         return package_source or f"t3@{version}", expected_version
 
     owner, repository = match.groups()
