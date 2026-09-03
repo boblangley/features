@@ -35,7 +35,10 @@ service_home="$(user_home_dir "${service_user}")"
 install -d -m 0755 -o "${service_user}" -g "$(id -gn "${service_user}")" \
     "${service_home}/.t3"
 
-package_spec="${PACKAGESOURCE:-t3@${VERSION}}"
+mapfile -t package_resolution < <(python3 "$(dirname "$0")/resolve-package-source.py" "${PACKAGESOURCE}" "${VERSION}")
+[ "${#package_resolution[@]}" -eq 2 ] || err "Unable to resolve the T3 Code package source."
+package_spec="${package_resolution[0]}"
+resolved_version="${package_resolution[1]}"
 log "Installing ${package_spec} globally"
 env \
     NPM_CONFIG_ENGINE_STRICT=true \
@@ -98,5 +101,9 @@ EOF
     log "Configured https://${DNSNAME} to proxy to T3 Code on 127.0.0.1:${PORT}."
 fi
 
-run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version >/dev/null
-log "Installed T3 Code $(run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version)"
+installed_version="$(run_as_user "${service_user}" env HOME="${service_home}" "${t3_binary}" --version)"
+if [ -n "${resolved_version}" ]; then
+    [ "${installed_version}" = "t3 v${resolved_version}" ] \
+        || err "Installed T3 Code version '${installed_version}' does not match resolved version '${resolved_version}'."
+fi
+log "Installed T3 Code ${installed_version}"

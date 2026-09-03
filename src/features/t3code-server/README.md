@@ -8,8 +8,8 @@ The Feature requires a Debian/Ubuntu image with s6-overlay 3 already installed. 
 
 | Option          | Type   | Default     | Description                                                                                                                               |
 | --------------- | ------ | ----------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
-| `version`       | string | `latest`    | T3 Code npm package version to install when `packageSource` is empty.                                                                     |
-| `packageSource` | string | `""`        | Optional npm package spec or tarball URL to install instead of `t3@<version>`.                                                            |
+| `version`       | string | `latest`    | T3 Code version. With a GitHub source, `latest` selects the greatest stable fork server tag by SemVer precedence.                         |
+| `packageSource` | string | `""`        | Optional npm package spec, tarball URL, or stable GitHub repository source.                                                               |
 | `port`          | string | `3773`      | Port exposed by the T3 Code server.                                                                                                       |
 | `host`          | string | `0.0.0.0`   | Interface to bind the T3 Code server to.                                                                                                  |
 | `serveMode`     | string | `""`        | Optional T3 runtime mode passed to `t3 serve --mode`. Empty preserves the T3 CLI default.                                                 |
@@ -43,19 +43,35 @@ To select an npm package spec directly:
 }
 ```
 
-To install the Wyrd Company fork from its public release tarball:
+To install an explicit Wyrd Company fork release:
 
 ```json
 {
   "features": {
     "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
-      "packageSource": "https://github.com/wyrd-company/t3code/releases/download/server/0.0.37-wyrd.1/t3-0.0.37-wyrd.1.tgz"
+      "packageSource": "github:wyrd-company/t3code",
+      "version": "0.0.37-wyrd.1"
     }
   }
 }
 ```
 
-When `packageSource` is empty, the Feature installs `t3@<version>`. This preserves the default `t3@latest` behavior. A non-empty `packageSource` is passed directly to `npm install` and takes precedence over `version`.
+To follow the newest stable Wyrd Company fork server release:
+
+```json
+{
+  "features": {
+    "ghcr.io/wyrd-company/devcontainers/t3code-server:1": {
+      "packageSource": "github:wyrd-company/t3code",
+      "version": "latest"
+    }
+  }
+}
+```
+
+For a `github:<owner>/<repository>` source, an explicit version installs the public release asset `t3-<version>.tgz` from tag `server/<version>`. `latest` anonymously enumerates the exact `server/*-wyrd.*` tag namespace and selects the greatest accepted version by SemVer precedence. It does not use GitHub's repository-wide latest-release marker or tag creation time.
+
+When `packageSource` is empty, the Feature installs `t3@<version>`. This preserves the default `t3@latest` behavior. Other non-empty npm package specs and URLs are passed directly to `npm install` and take precedence over `version`.
 
 When both Features are selected, T3 installs after Caddy automatically. Setting `dnsName` writes `/etc/caddy/conf.d/t3code-server.caddy` and registers the name in `/etc/caddy/required-hosts.d/t3code-server.host`. Caddy waits for that name to resolve before requesting its certificate, then serves it over HTTPS and proxies to T3 on the configured loopback port. Installation fails when `dnsName` is set without a Caddy Feature version that supports DNS readiness; leave it empty to run T3 without a reverse proxy.
 
