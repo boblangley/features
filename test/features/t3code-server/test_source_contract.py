@@ -49,6 +49,22 @@ class SourceContractTests(unittest.TestCase):
             check=True,
         )
 
+    def test_installer_wires_resolved_version_into_executable_check(self):
+        installer = (FEATURE / "install.sh").read_text()
+        resolved_assignment = re.findall(
+            r'^resolved_version="\$\{package_resolution\[([0-9]+)\]\}"$',
+            installer,
+            re.MULTILINE,
+        )
+        verification = re.findall(
+            r'^"\$\(dirname "\$0"\)/([^" ]+)" "\$\{installed_version\}" "\$\{resolved_version\}"$',
+            installer,
+            re.MULTILINE,
+        )
+        self.assertEqual(resolved_assignment, ["1"])
+        self.assertEqual(verification, ["verify-version.sh"])
+        self.assertTrue((FEATURE / verification[0]).is_file())
+
     def test_readme_documents_explicit_and_latest_github_examples(self):
         readme = (FEATURE / "README.md").read_text()
         self.assertGreaterEqual(readme.count('"packageSource": "github:wyrd-company/t3code"'), 2)

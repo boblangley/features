@@ -34,6 +34,11 @@ class ResolverTests(unittest.TestCase):
     def test_explicit_default_npm_version_is_verified(self):
         self.assertEqual(resolver.resolve("", "1.2.3"), ("t3@1.2.3", "1.2.3"))
 
+    def test_default_npm_ranges_and_dist_tags_remain_supported(self):
+        for version in ("^1.2.3", "1.2", "next", "latest"):
+            with self.subTest(version=version):
+                self.assertEqual(resolver.resolve("", version), (f"t3@{version}", ""))
+
     def test_explicit_npm_spec_and_url_remain_unchanged(self):
         for source in ("example-package@1.2.3", "https://packages.example.test/tool.tgz"):
             with self.subTest(source=source):
@@ -77,6 +82,9 @@ class ResolverTests(unittest.TestCase):
 
     def test_github_repository_identity_is_validated(self):
         invalid_sources = (
+            "github:../sample-repository",
+            "github:-sample-owner/sample-repository",
+            "github:.sample-owner/sample-repository",
             "github:sample-owner/sample-repository/../../unexpected",
             "github:sample-owner/.",
             "github:sample-owner/..",
@@ -86,6 +94,11 @@ class ResolverTests(unittest.TestCase):
         for source in invalid_sources:
             with self.subTest(source=source), self.assertRaisesRegex(ValueError, "github:<owner>/<repository>"):
                 resolver.resolve(source, "latest")
+
+    def test_explicit_github_version_must_be_semver(self):
+        for version in ("../../../unexpected/path", "1.2", "next"):
+            with self.subTest(version=version), self.assertRaisesRegex(ValueError, "not valid SemVer"):
+                resolver.resolve("github:sample-owner/sample-repository", version)
 
     def test_tag_discovery_uses_one_anonymous_matching_refs_request(self):
         payload = [{"ref": f"refs/tags/server/1.0.0-wyrd.{number}"} for number in range(1, 102)]
