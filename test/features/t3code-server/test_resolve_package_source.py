@@ -93,7 +93,7 @@ class ResolverTests(unittest.TestCase):
         )
         for source in invalid_sources:
             with self.subTest(source=source), self.assertRaisesRegex(ValueError, "github:<owner>/<repository>"):
-                resolver.resolve(source, "latest")
+                resolver.resolve(source, "1.2.3")
 
     def test_explicit_github_version_must_be_semver(self):
         for version in ("../../../unexpected/path", "1.2", "next"):
