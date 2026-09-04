@@ -104,6 +104,18 @@ jobs:
       - name: Test Caddy runtime and hot reload
         run: ./scripts/test-caddy-runtime.sh
 
+  test-t3code-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install latest devcontainer CLI
+        run: npm install -g @devcontainers/cli
+
+      - name: Test T3 Code fork runtime
+        run: ./scripts/test-t3code-runtime.sh
+
   test-dagu-runtime:
     runs-on: ubuntu-latest
     steps:
