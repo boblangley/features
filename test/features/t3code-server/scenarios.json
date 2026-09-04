@@ -18,5 +18,14 @@
       },
       "caddy": {}
     }
+  },
+  "t3code-server-fork-package-source": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "t3code-server": {
+        "packageSource": "github:wyrd-company/t3code",
+        "version": "0.0.37-wyrd.1"
+      }
+    }
   }
 }
