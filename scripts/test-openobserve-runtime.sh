@@ -59,6 +59,7 @@ config_dir="$(mktemp -d)"
 chmod 0777 "${config_dir}"
 cat >"${config_dir}/openobserve.env" <<EOF
 ZO_ROOT_USER_EMAIL=bindmount@example.com
+ZO_ROOT_USER_PASSWORD=MountedSecretPass#456
 EOF
 chmod 0644 "${config_dir}/openobserve.env"
 
@@ -81,6 +82,21 @@ docker exec --user vscode "${config_container}" sh -c \
     "tr '\0' '\n' </proc/${config_pid}/cmdline | grep -qx -- '-c'"
 docker exec --user vscode "${config_container}" sh -c \
     "tr '\0' '\n' </proc/${config_pid}/cmdline | grep -qx -- '/home/vscode/.config/openobserve/openobserve.env'"
+
+# Behavior-level observation: default credentials must fail, mounted credentials must succeed and return user data
+if docker exec "${config_container}" curl --fail --silent \
+    -u "root@example.com:Complexpass#123" http://127.0.0.1:5080/api/default/users >/dev/null 2>&1; then
+    echo "Default root user credentials authenticated when custom bind-mounted config was supplied." >&2
+    exit 1
+fi
+
+mounted_users="$(docker exec "${config_container}" curl --fail --silent \
+    -u "bindmount@example.com:MountedSecretPass#456" http://127.0.0.1:5080/api/default/users)"
+if ! printf '%s\n' "${mounted_users}" | grep -Fq '"email":"bindmount@example.com"'; then
+    echo "Config file did not bootstrap root user from bind-mounted openobserve.env: ${mounted_users}." >&2
+    exit 1
+fi
+
 docker stop "${config_container}" >/dev/null 2>&1 || true
 docker rm "${config_container}" >/dev/null 2>&1 || true
 rm -rf "${config_dir}"
