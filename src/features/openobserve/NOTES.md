@@ -1,0 +1,1 @@
+OpenObserve runs under s6-overlay as the selected devcontainer user. Configuration, SQLite metadata, WAL, and data use OpenObserve's native per-user paths and are not persisted by this Feature. Add per-container bind mounts when persistence or object-storage configuration is required. Set `dnsName` with the Caddy Feature to expose OpenObserve through HTTPS.
