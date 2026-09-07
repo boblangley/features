@@ -206,10 +206,18 @@ if [ -z "\${service_home}" ]; then
     service_home="\$(getent passwd "\$(id -un)" | cut -d: -f6)"
 fi
 
-export ZO_DATA_DIR="\${ZO_DATA_DIR:-\${service_home}/.local/share/openobserve}"
-export ZO_ROOT_USER_EMAIL="\${ZO_ROOT_USER_EMAIL:-${quoted_default_email}}"
-export ZO_ROOT_USER_PASSWORD="\${ZO_ROOT_USER_PASSWORD:-${quoted_default_password}}"
-export ZO_TELEMETRY="\${ZO_TELEMETRY:-${quoted_default_telemetry}}"
+if [ -z "\${ZO_DATA_DIR:-}" ]; then
+    export ZO_DATA_DIR="\${service_home}/.local/share/openobserve"
+fi
+if [ -z "\${ZO_ROOT_USER_EMAIL:-}" ]; then
+    export ZO_ROOT_USER_EMAIL=${quoted_default_email}
+fi
+if [ -z "\${ZO_ROOT_USER_PASSWORD:-}" ]; then
+    export ZO_ROOT_USER_PASSWORD=${quoted_default_password}
+fi
+if [ -z "\${ZO_TELEMETRY:-}" ]; then
+    export ZO_TELEMETRY=${quoted_default_telemetry}
+fi
 EOF
 
 if [ -n "${DNSNAME}" ]; then

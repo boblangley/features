@@ -11,8 +11,8 @@ check "custom HTTP port is configured" grep -q 'export ZO_HTTP_PORT=5180' /usr/l
 check "custom gRPC port is configured" grep -q 'export ZO_GRPC_PORT=5181' /usr/local/bin/openobserve-service
 check "custom service user is configured" grep -q '^exec s6-setuidgid root ' /etc/s6-overlay/s6-rc.d/openobserve/run
 check "custom service home is configured" grep -q ' HOME=/root ' /etc/s6-overlay/s6-rc.d/openobserve/run
-check "custom root user email is configured" grep -Fq 'ZO_ROOT_USER_EMAIL="${ZO_ROOT_USER_EMAIL:-admin@example.org}"' /usr/local/bin/openobserve-service
-check "custom root user password is configured" grep -Fq 'ZO_ROOT_USER_PASSWORD="${ZO_ROOT_USER_PASSWORD:-CustomPassword#123}"' /usr/local/bin/openobserve-service
-check "custom telemetry is configured" grep -Fq 'ZO_TELEMETRY="${ZO_TELEMETRY:-true}"' /usr/local/bin/openobserve-service
+check "custom root user email is configured" grep -Fq 'export ZO_ROOT_USER_EMAIL=admin@example.org' /usr/local/bin/openobserve-service
+check "custom root user password is configured" grep -Fq 'export ZO_ROOT_USER_PASSWORD=CustomPassword#123' /usr/local/bin/openobserve-service
+check "custom telemetry is configured" grep -Fq 'export ZO_TELEMETRY=true' /usr/local/bin/openobserve-service
 
 reportResults
