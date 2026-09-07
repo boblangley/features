@@ -39,6 +39,7 @@ Setting `dnsName` requires the Caddy Feature. Caddy-enabled configurations accep
 | `rootUserPassword` | string  | `Complexpass#123`   | Initial administrator password used to bootstrap the root user account.      |
 | `telemetry`        | boolean | `false`             | Enable or disable anonymous usage telemetry sent to upstream.                |
 | `sha256`           | string  | `""`                | Optional expected SHA256 checksum for the downloaded release archive.        |
+| `s3BucketPrefix`   | string  | `""`                | Optional S3 object-key prefix unique to this container. Leave empty to leave `ZO_S3_BUCKET_PREFIX` unset. |
 
 The configured host, HTTP port, and gRPC port are pinned in the service launcher and take precedence over container environment-variable overrides.
 
@@ -93,6 +94,22 @@ Bind-mount the file into your container:
   ]
 }
 ```
+
+### S3 bucket prefix
+
+Do not set `ZO_S3_BUCKET_PREFIX` in a shared env file. OpenObserve loads `-c` with dotenv override, so a value there replaces the Feature option. Set a unique prefix per container with `s3BucketPrefix` instead:
+
+```json
+{
+  "features": {
+    "ghcr.io/wyrd-company/devcontainers/openobserve:1": {
+      "s3BucketPrefix": "tools"
+    }
+  }
+}
+```
+
+The launcher exports `ZO_S3_BUCKET_PREFIX` with a trailing slash (`tools/`). Several containers may share one bucket when each uses a distinct prefix. They still keep separate local metadata, WAL, and login state.
 
 ## Release resolution and integrity
 

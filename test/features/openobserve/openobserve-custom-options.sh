@@ -14,5 +14,6 @@ check "custom service home is configured" grep -q ' HOME=/root ' /etc/s6-overlay
 check "custom root user email is configured" grep -Fq 'export ZO_ROOT_USER_EMAIL=admin@example.org' /usr/local/bin/openobserve-service
 check "custom root user password is configured" grep -Fq 'export ZO_ROOT_USER_PASSWORD=CustomPassword#123' /usr/local/bin/openobserve-service
 check "custom telemetry is configured" grep -Fq 'export ZO_TELEMETRY=true' /usr/local/bin/openobserve-service
+check "custom S3 bucket prefix is normalized with a trailing slash" grep -Fq 'export ZO_S3_BUCKET_PREFIX=tools/' /usr/local/bin/openobserve-service
 
 reportResults

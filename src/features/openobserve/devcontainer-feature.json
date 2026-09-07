@@ -1,6 +1,6 @@
 {
   "id": "openobserve",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "name": "OpenObserve",
   "documentationURL": "https://github.com/wyrd-company/devcontainers/tree/main/src/features/openobserve",
   "description": "Installs OpenObserve OSS single binary and runs it as an s6-overlay service.",
@@ -54,6 +54,11 @@
       "type": "string",
       "default": "",
       "description": "Optional expected SHA256 checksum for the downloaded release archive."
+    },
+    "s3BucketPrefix": {
+      "type": "string",
+      "default": "",
+      "description": "Optional S3 object-key prefix unique to this container. Use when several containers share one bucket. Leave empty to leave ZO_S3_BUCKET_PREFIX unset."
     }
   },
   "installsAfter": [

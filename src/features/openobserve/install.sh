@@ -63,6 +63,7 @@ ROOTUSEREMAIL="${ROOTUSEREMAIL:-root@example.com}"
 ROOTUSERPASSWORD="${ROOTUSERPASSWORD:-Complexpass#123}"
 TELEMETRY="${TELEMETRY:-false}"
 SHA256="${SHA256:-}"
+S3BUCKETPREFIX="${S3BUCKETPREFIX:-}"
 
 # shellcheck disable=SC1091
 . /etc/os-release
@@ -98,6 +99,27 @@ esac
 if [ -n "${SHA256}" ]; then
     [[ "${SHA256}" =~ ^[0-9a-fA-F]{64}$ ]] \
         || err "sha256 must be a 64-character hexadecimal SHA256 hash."
+fi
+
+normalized_s3_bucket_prefix=""
+if [ -n "${S3BUCKETPREFIX}" ]; then
+    case "${S3BUCKETPREFIX}" in
+        *$'\n'*|*$'\r'*) err "s3BucketPrefix contains unsupported characters." ;;
+        *,*) err "s3BucketPrefix must be a single prefix, not a comma-separated list." ;;
+    esac
+    normalized_s3_bucket_prefix="${S3BUCKETPREFIX}"
+    while [ "${normalized_s3_bucket_prefix}" != "${normalized_s3_bucket_prefix%/}" ]; do
+        normalized_s3_bucket_prefix="${normalized_s3_bucket_prefix%/}"
+    done
+    [ -n "${normalized_s3_bucket_prefix}" ] || err "s3BucketPrefix must not be only slashes."
+    [ "${#normalized_s3_bucket_prefix}" -le 256 ] || err "s3BucketPrefix exceeds 256 characters."
+    case "${normalized_s3_bucket_prefix}" in
+        /*) err "s3BucketPrefix must not begin with '/'." ;;
+        *//*) err "s3BucketPrefix must not contain empty path segments." ;;
+    esac
+    [[ "${normalized_s3_bucket_prefix}" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] \
+        || err "s3BucketPrefix contains an invalid character."
+    normalized_s3_bucket_prefix="${normalized_s3_bucket_prefix}/"
 fi
 
 normalized_host="${HOST}"
@@ -196,6 +218,7 @@ printf -v quoted_default_email '%q' "${ROOTUSEREMAIL}"
 printf -v quoted_default_password '%q' "${ROOTUSERPASSWORD}"
 printf -v quoted_default_telemetry '%q' "${TELEMETRY}"
 printf -v quoted_public_url '%q' "https://${DNSNAME}"
+printf -v quoted_s3_bucket_prefix '%q' "${normalized_s3_bucket_prefix}"
 
 cat >/usr/local/bin/openobserve-service <<EOF
 #!/usr/bin/env bash
@@ -223,6 +246,12 @@ EOF
 if [ -n "${DNSNAME}" ]; then
     cat >>/usr/local/bin/openobserve-service <<EOF
 export ZO_WEB_URL=${quoted_public_url}
+EOF
+fi
+
+if [ -n "${normalized_s3_bucket_prefix}" ]; then
+    cat >>/usr/local/bin/openobserve-service <<EOF
+export ZO_S3_BUCKET_PREFIX=${quoted_s3_bucket_prefix}
 EOF
 fi
 

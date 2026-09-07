@@ -52,6 +52,7 @@ fi
 
 # Verify data was written to the documented default location
 docker exec "${name}" test -f /home/vscode/.local/share/openobserve/db/metadata.sqlite
+docker exec "${name}" bash -c '! grep -q ZO_S3_BUCKET_PREFIX /usr/local/bin/openobserve-service'
 
 # Verify that documented bind-mounted config file is loaded and affects OpenObserve
 config_container="openobserve-config-test-${RANDOM}-$$"
@@ -134,6 +135,7 @@ common_options=(
     ROOTUSERPASSWORD="Complexpass#123"
     TELEMETRY=false
     SHA256=
+    S3BUCKETPREFIX=
     _REMOTE_USER=vscode
 )
 assert_install_rejected \
@@ -160,17 +162,45 @@ assert_install_rejected \
     "Caddy registration on a non-loopback host" \
     "dnsName requires host" \
     VERSION=latest HOST=192.0.2.10 PORT=5080 GRPCPORT=5081 SERVICEUSER=automatic \
-    DNSNAME=observe.test-container.example.test _REMOTE_USER=vscode
+    DNSNAME=observe.test-container.example.test S3BUCKETPREFIX= _REMOTE_USER=vscode
 assert_install_rejected \
     "Caddy registration without Caddy" \
     "dnsName requires the Caddy Feature" \
     VERSION=latest HOST=127.0.0.1 PORT=5080 GRPCPORT=5081 SERVICEUSER=automatic \
-    DNSNAME=observe.test-container.example.test _REMOTE_USER=vscode
+    DNSNAME=observe.test-container.example.test S3BUCKETPREFIX= _REMOTE_USER=vscode
 assert_install_rejected \
     "release archive with a failed checksum" \
     "Checksum verification failed" \
     VERSION=latest HOST=127.0.0.1 PORT=5080 GRPCPORT=5081 SERVICEUSER=automatic DNSNAME= \
-    SHA256=0000000000000000000000000000000000000000000000000000000000000000 _REMOTE_USER=vscode
+    SHA256=0000000000000000000000000000000000000000000000000000000000000000 S3BUCKETPREFIX= _REMOTE_USER=vscode
+assert_install_rejected \
+    "s3BucketPrefix with a newline" \
+    "s3BucketPrefix contains unsupported characters" \
+    "${common_options[@]}" S3BUCKETPREFIX=$'tools\nkanban'
+assert_install_rejected \
+    "s3BucketPrefix with a comma-separated list" \
+    "s3BucketPrefix must be a single prefix, not a comma-separated list" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=tools,kanban}"
+assert_install_rejected \
+    "s3BucketPrefix that begins with a slash" \
+    "s3BucketPrefix must not begin with '/'" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=/tools}"
+assert_install_rejected \
+    "s3BucketPrefix with empty path segments" \
+    "s3BucketPrefix must not contain empty path segments" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=tools//logs}"
+assert_install_rejected \
+    "s3BucketPrefix that is only slashes" \
+    "s3BucketPrefix must not be only slashes" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=///}"
+assert_install_rejected \
+    "s3BucketPrefix with an invalid character" \
+    "s3BucketPrefix contains an invalid character" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=tools prefix}"
+assert_install_rejected \
+    "s3BucketPrefix longer than 256 characters" \
+    "s3BucketPrefix exceeds 256 characters" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=$(printf 'a%.0s' {1..257})}"
 
 # Verify that passwords requiring shell quoting are preserved accurately in the service launcher
 assert_password_preserved() {
@@ -200,5 +230,34 @@ assert_password_preserved() {
 }
 assert_password_preserved 'correct horse battery staple'
 assert_password_preserved 'P@$$w0rd with "quotes" and $symbols!'
+
+assert_s3_bucket_prefix_exported() {
+    local requested="$1"
+    local expected="$2"
+    local container_id
+    container_id="$(docker run --detach \
+        --entrypoint /bin/sh \
+        --volume "${repo_root}/src/features/openobserve:/tmp/openobserve-feature:ro" \
+        "${image}" -c 'sleep 300')"
+    docker exec "${container_id}" env \
+        VERSION=latest HOST=127.0.0.1 PORT=5080 GRPCPORT=5081 SERVICEUSER=automatic DNSNAME= \
+        ROOTUSEREMAIL=root@example.com ROOTUSERPASSWORD="Complexpass#123" TELEMETRY=false \
+        S3BUCKETPREFIX="${requested}" _REMOTE_USER=vscode \
+        /tmp/openobserve-feature/install.sh >/dev/null 2>&1
+    local evaluated
+    evaluated="$(docker exec "${container_id}" bash -c '
+        set +e
+        eval "$(grep -E "^[[:space:]]*export ZO_S3_BUCKET_PREFIX=" /usr/local/bin/openobserve-service)"
+        printf "%s" "${ZO_S3_BUCKET_PREFIX-}"
+    ')"
+    docker stop "${container_id}" >/dev/null 2>&1 || true
+    docker rm "${container_id}" >/dev/null 2>&1 || true
+    if [ "${evaluated}" != "${expected}" ]; then
+        echo "s3BucketPrefix was not exported as expected: requested '${requested}', expected '${expected}', got '${evaluated}'." >&2
+        exit 1
+    fi
+}
+assert_s3_bucket_prefix_exported 'tools' 'tools/'
+assert_s3_bucket_prefix_exported 'kanban/logs/' 'kanban/logs/'
 
 printf 'OpenObserve s6 runtime checks passed.\n'

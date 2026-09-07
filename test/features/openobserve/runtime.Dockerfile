@@ -13,5 +13,6 @@ RUN VERSION=latest \
     ROOTUSERPASSWORD="Complexpass#123" \
     TELEMETRY=false \
     _REMOTE_USER=vscode \
+    S3BUCKETPREFIX= \
     /tmp/openobserve-feature/install.sh \
     && rm -rf /tmp/openobserve-feature

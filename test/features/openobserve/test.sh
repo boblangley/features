@@ -21,6 +21,7 @@ check "OpenObserve default gRPC port is 5081" grep -q 'export ZO_GRPC_PORT=5081'
 check "OpenObserve default root user email is set" grep -Fq 'export ZO_ROOT_USER_EMAIL=root@example.com' /usr/local/bin/openobserve-service
 check "OpenObserve default root user password is set" grep -Fq 'export ZO_ROOT_USER_PASSWORD=Complexpass#123' /usr/local/bin/openobserve-service
 check "OpenObserve telemetry is disabled by default" grep -Fq 'export ZO_TELEMETRY=false' /usr/local/bin/openobserve-service
+check "OpenObserve Feature does not export an S3 bucket prefix by default" bash -c '! grep -q ZO_S3_BUCKET_PREFIX /usr/local/bin/openobserve-service'
 check "OpenObserve Feature does not create a managed config" test ! -e /etc/openobserve/openobserve.env
 check "OpenObserve Feature does not register systemd" test ! -e /etc/systemd/system/openobserve.service
 

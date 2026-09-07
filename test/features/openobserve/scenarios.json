@@ -10,7 +10,8 @@
         "serviceUser": "root",
         "rootUserEmail": "admin@example.org",
         "rootUserPassword": "CustomPassword#123",
-        "telemetry": true
+        "telemetry": true,
+        "s3BucketPrefix": "tools"
       }
     }
   },
