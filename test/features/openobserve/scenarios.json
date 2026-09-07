@@ -1,0 +1,28 @@
+{
+  "openobserve-custom-options": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "openobserve": {
+        "version": "v0.92.1",
+        "host": "localhost",
+        "port": "5180",
+        "grpcPort": "5181",
+        "serviceUser": "root",
+        "rootUserEmail": "admin@example.org",
+        "rootUserPassword": "CustomPassword#123",
+        "telemetry": true
+      }
+    }
+  },
+  "openobserve-caddy": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "openobserve": {
+        "host": "0.0.0.0",
+        "port": "5180",
+        "dnsName": "observe.test-container.example.test"
+      },
+      "caddy": {}
+    }
+  }
+}

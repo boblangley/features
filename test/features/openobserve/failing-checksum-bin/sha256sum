@@ -1,0 +1,7 @@
+#!/usr/bin/env sh
+
+if [ "${1:-}" = --check ]; then
+    exit 1
+fi
+
+exec /usr/bin/sha256sum "$@"

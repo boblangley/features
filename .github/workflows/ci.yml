@@ -46,6 +46,7 @@ jobs:
         feature:
           - caddy
           - dagu
+          - openobserve
           - t3code-server
     steps:
       - name: Checkout
@@ -76,6 +77,7 @@ jobs:
         feature:
           - caddy
           - dagu
+          - openobserve
           - go
           - sshd
           - docker-outside-of-docker
@@ -124,6 +126,15 @@ jobs:
 
       - name: Test Dagu runtime under s6
         run: ./scripts/test-dagu-runtime.sh
+
+  test-openobserve-runtime:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Test OpenObserve runtime under s6
+        run: ./scripts/test-openobserve-runtime.sh
 
   test-image:
     runs-on: ubuntu-latest
