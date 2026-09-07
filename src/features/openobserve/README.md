@@ -39,7 +39,7 @@ Setting `dnsName` requires the Caddy Feature. Caddy-enabled configurations accep
 | `rootUserPassword` | string  | `Complexpass#123`   | Initial administrator password used to bootstrap the root user account.      |
 | `telemetry`        | boolean | `false`             | Enable or disable anonymous usage telemetry sent to upstream.                |
 | `sha256`           | string  | `""`                | Optional expected SHA256 checksum for the downloaded release archive.        |
-| `s3BucketPrefix`   | string  | `""`                | Optional S3 object-key prefix unique to this container. Leave empty to leave `ZO_S3_BUCKET_PREFIX` unset. |
+| `s3BucketPrefix`   | string  | `""`                | Optional S3 object-key prefix unique to this container. Must match the grammar below. Leave empty to leave `ZO_S3_BUCKET_PREFIX` unset. |
 
 The configured host, HTTP port, and gRPC port are pinned in the service launcher and take precedence over container environment-variable overrides.
 
@@ -110,6 +110,8 @@ Do not set `ZO_S3_BUCKET_PREFIX` in a shared env file. OpenObserve loads `-c` wi
 ```
 
 The launcher exports `ZO_S3_BUCKET_PREFIX` with a trailing slash (`tools/`). Several containers may share one bucket when each uses a distinct prefix. They still keep separate local metadata, WAL, and login state.
+
+Accepted values start with a letter or digit, then letters, digits, `.`, `_`, `/`, or `-`. Leading `/`, empty path segments (`//`), commas, spaces, and other characters are rejected. Trailing slashes are stripped, then one `/` is appended. The exported prefix, including that slash, is at most 256 characters.
 
 ## Release resolution and integrity
 

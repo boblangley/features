@@ -112,14 +112,15 @@ if [ -n "${S3BUCKETPREFIX}" ]; then
         normalized_s3_bucket_prefix="${normalized_s3_bucket_prefix%/}"
     done
     [ -n "${normalized_s3_bucket_prefix}" ] || err "s3BucketPrefix must not be only slashes."
-    [ "${#normalized_s3_bucket_prefix}" -le 256 ] || err "s3BucketPrefix exceeds 256 characters."
     case "${normalized_s3_bucket_prefix}" in
         /*) err "s3BucketPrefix must not begin with '/'." ;;
         *//*) err "s3BucketPrefix must not contain empty path segments." ;;
     esac
     [[ "${normalized_s3_bucket_prefix}" =~ ^[A-Za-z0-9][A-Za-z0-9._/-]*$ ]] \
         || err "s3BucketPrefix contains an invalid character."
+    # Cap the exported value (one trailing slash). Trailing slashes on input are stripped first.
     normalized_s3_bucket_prefix="${normalized_s3_bucket_prefix}/"
+    [ "${#normalized_s3_bucket_prefix}" -le 256 ] || err "s3BucketPrefix exceeds 256 characters."
 fi
 
 normalized_host="${HOST}"

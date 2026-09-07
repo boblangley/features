@@ -198,9 +198,13 @@ assert_install_rejected \
     "s3BucketPrefix contains an invalid character" \
     "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=tools prefix}"
 assert_install_rejected \
-    "s3BucketPrefix longer than 256 characters" \
+    "s3BucketPrefix whose exported value would exceed 256 characters" \
     "s3BucketPrefix exceeds 256 characters" \
-    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=$(printf 'a%.0s' {1..257})}"
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=$(printf 'a%.0s' {1..256})}"
+assert_install_rejected \
+    "s3BucketPrefix of 256 characters plus a trailing slash" \
+    "s3BucketPrefix exceeds 256 characters" \
+    "${common_options[@]/S3BUCKETPREFIX=/S3BUCKETPREFIX=$(printf 'a%.0s' {1..256})/}"
 
 # Verify that passwords requiring shell quoting are preserved accurately in the service launcher
 assert_password_preserved() {
@@ -259,5 +263,8 @@ assert_s3_bucket_prefix_exported() {
 }
 assert_s3_bucket_prefix_exported 'tools' 'tools/'
 assert_s3_bucket_prefix_exported 'kanban/logs/' 'kanban/logs/'
+max_s3_bucket_prefix_body="$(printf 'a%.0s' {1..255})"
+assert_s3_bucket_prefix_exported "${max_s3_bucket_prefix_body}" "${max_s3_bucket_prefix_body}/"
+assert_s3_bucket_prefix_exported "${max_s3_bucket_prefix_body}/" "${max_s3_bucket_prefix_body}/"
 
 printf 'OpenObserve s6 runtime checks passed.\n'
