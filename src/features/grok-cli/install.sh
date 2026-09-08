@@ -12,7 +12,8 @@ devcontainer_user="$(pick_devcontainer_user)"
 user_home="$(user_home_dir "${devcontainer_user}")"
 [ -n "${user_home}" ] || err "Unable to resolve the home directory for ${devcontainer_user}."
 
-install -d -m 0755 -o "${devcontainer_user}" -g "$(id -gn "${devcontainer_user}")" "${user_home}/.local/bin"
+install -d -m 0755 -o "${devcontainer_user}" -g "$(id -gn "${devcontainer_user}")" \
+    "${user_home}/.local" "${user_home}/.local/bin"
 
 installer="$(mktemp)"
 trap 'rm -f "${installer}"' EXIT

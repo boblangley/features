@@ -16,6 +16,7 @@ check "grok command exists" test -x "${GROK}"
 check "grok version works as user" env HOME="${USER_HOME}" "${GROK}" --version
 check "grok executable is user-owned" test "$(stat -c %U "$(readlink -f "${GROK}")")" = "${FEATURE_USER}"
 check "grok state is user-owned" test "$(stat -c %U "${USER_HOME}/.grok")" = "${FEATURE_USER}"
+check "user local directory is user-owned" test "$(stat -c %U "${USER_HOME}/.local")" = "${FEATURE_USER}"
 check "global grok command is only a symlink" test -L /usr/local/bin/grok
 check "global grok command targets the user installation" test "$(readlink -f /usr/local/bin/grok)" = "$(readlink -f "${GROK}")"
 check "grok does not add a global agent alias" test ! -e /usr/local/bin/agent
