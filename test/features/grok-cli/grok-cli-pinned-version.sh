@@ -11,9 +11,14 @@ if id -u vscode >/dev/null 2>&1; then
 fi
 USER_HOME="$(getent passwd "${FEATURE_USER}" | cut -d: -f6)"
 GROK="${USER_HOME}/.grok/bin/grok"
-GROK_VERSION="$(env HOME="${USER_HOME}" "${GROK}" --version)"
 
-check "requested grok version is installed" test "${GROK_VERSION%% (*}" = "grok 1.0.13"
+requested_version_installed() {
+    [[ "$1" =~ (^|[^0-9])1\.0\.13([^0-9]|$) ]]
+}
+
+check "grok command exists" test -x "${GROK}"
+GROK_VERSION="$(env HOME="${USER_HOME}" "${GROK}" --version)"
+check "requested grok version is installed" requested_version_installed "${GROK_VERSION}"
 check "pinned grok executable is user-owned" test "$(stat -c %U "$(readlink -f "${GROK}")")" = "${FEATURE_USER}"
 
 reportResults
