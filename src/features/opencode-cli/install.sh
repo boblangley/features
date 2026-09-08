@@ -34,6 +34,12 @@ run_as_user "${devcontainer_user}" env \
 opencode_binary="${user_home}/.opencode/bin/opencode"
 [ -x "${opencode_binary}" ] || err "OpenCode was not installed at ${opencode_binary}."
 chown -R "${devcontainer_user}:$(id -gn "${devcontainer_user}")" "${user_home}/.opencode"
+
+installed_version="$(run_as_user "${devcontainer_user}" env HOME="${user_home}" "${opencode_binary}" --version)"
+if [ -n "${installer_version}" ] && [ "${installed_version#v}" != "${installer_version#v}" ]; then
+    err "OpenCode ${installer_version} was requested, but ${installed_version} was installed."
+fi
+
 ln -sf "${opencode_binary}" /usr/local/bin/opencode
 
-log "Installed OpenCode $(run_as_user "${devcontainer_user}" env HOME="${user_home}" "${opencode_binary}" --version)"
+log "Installed OpenCode ${installed_version}"

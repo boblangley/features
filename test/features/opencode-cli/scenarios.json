@@ -1,0 +1,10 @@
+{
+  "opencode-cli-pinned": {
+    "image": "ghcr.io/wyrd-company/devcontainers/base:noble",
+    "features": {
+      "opencode-cli": {
+        "version": "1.18.25"
+      }
+    }
+  }
+}

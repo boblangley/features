@@ -49,6 +49,7 @@ jobs:
           - caddy
           - dagu
           - openobserve
+          - opencode-cli
           - t3code-server
     steps:
       - name: Checkout
