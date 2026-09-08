@@ -1,0 +1,10 @@
+{
+  "grok-cli-pinned-version": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "grok-cli": {
+        "version": "1.0.13"
+      }
+    }
+  }
+}

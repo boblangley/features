@@ -49,6 +49,7 @@ jobs:
         feature:
           - caddy
           - dagu
+          - grok-cli
           - openobserve
           - opencode-cli
           - t3code-server
