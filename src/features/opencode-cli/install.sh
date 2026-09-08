@@ -28,7 +28,7 @@ log "Installing OpenCode ${VERSION} for ${devcontainer_user}"
 run_as_user "${devcontainer_user}" env \
     HOME="${user_home}" \
     PATH="${user_home}/.opencode/bin:/usr/sbin:/usr/bin:/sbin:/bin" \
-    VERSION="${installer_version}" \
+    VERSION="" \
     bash "${installer}" "${installer_args[@]}"
 
 opencode_binary="${user_home}/.opencode/bin/opencode"
