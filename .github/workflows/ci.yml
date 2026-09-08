@@ -27,6 +27,7 @@ jobs:
           - codex-cli
           - claude-code-cli
           - cursor-agent-cli
+          - opencode-cli
         baseImage:
           - debian:bookworm
           - mcr.microsoft.com/devcontainers/base:noble
