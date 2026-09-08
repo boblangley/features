@@ -20,5 +20,6 @@ check "user local directory is user-owned" test "$(stat -c %U "${USER_HOME}/.loc
 check "global grok command is only a symlink" test -L /usr/local/bin/grok
 check "global grok command targets the user installation" test "$(readlink -f /usr/local/bin/grok)" = "$(readlink -f "${GROK}")"
 check "grok does not add a global agent alias" test ! -e /usr/local/bin/agent
+check "grok does not add a user-local agent alias" test ! -e "${USER_HOME}/.local/bin/agent"
 
 reportResults

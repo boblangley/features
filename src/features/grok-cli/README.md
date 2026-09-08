@@ -4,7 +4,7 @@ Installs the Grok CLI for the resolved Dev Container user using xAI's native ins
 
 The executable, updater, and Grok state remain owned by the user rather than root.
 
-xAI's installer also creates the user-owned `~/.local/bin/agent` alias. The Feature exposes only `grok` in `/usr/local/bin`.
+The Feature does not retain xAI's optional `agent` alias, so it does not replace another tool that provides that command. It exposes only `grok` in `/usr/local/bin`.
 
 ## Options
 

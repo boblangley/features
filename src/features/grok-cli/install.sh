@@ -16,15 +16,27 @@ install -d -m 0755 -o "${devcontainer_user}" -g "$(id -gn "${devcontainer_user}"
     "${user_home}/.local" "${user_home}/.local/bin"
 
 installer="$(mktemp)"
-trap 'rm -f "${installer}"' EXIT
+agent_alias="${user_home}/.local/bin/agent"
+agent_backup="${agent_alias}.grok-cli-backup.$$"
+if [ -e "${agent_alias}" ] || [ -L "${agent_alias}" ]; then
+    mv "${agent_alias}" "${agent_backup}"
+fi
+
+cleanup() {
+    rm -f "${installer}" "${agent_alias}"
+    if [ -e "${agent_backup}" ] || [ -L "${agent_backup}" ]; then
+        mv "${agent_backup}" "${agent_alias}"
+    fi
+}
+trap cleanup EXIT
 curl --fail --location --silent --show-error https://x.ai/cli/install.sh --output "${installer}"
 chmod 0755 "${installer}"
 
 log "Installing Grok CLI ${VERSION} for ${devcontainer_user}"
 if [ "${VERSION}" = latest ]; then
-    run_as_user "${devcontainer_user}" env HOME="${user_home}" PATH="${user_home}/.local/bin:${PATH}" bash "${installer}"
+    run_as_user "${devcontainer_user}" env HOME="${user_home}" PATH="${user_home}/.local/bin:${PATH}" SHELL= bash "${installer}"
 else
-    run_as_user "${devcontainer_user}" env HOME="${user_home}" PATH="${user_home}/.local/bin:${PATH}" bash "${installer}" "${VERSION}"
+    run_as_user "${devcontainer_user}" env HOME="${user_home}" PATH="${user_home}/.local/bin:${PATH}" SHELL= bash "${installer}" "${VERSION}"
 fi
 
 grok_binary="${user_home}/.grok/bin/grok"

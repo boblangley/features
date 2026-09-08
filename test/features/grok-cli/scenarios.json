@@ -6,5 +6,12 @@
         "version": "1.0.12"
       }
     }
+  },
+  "grok-cli-cursor-agent": {
+    "image": "mcr.microsoft.com/devcontainers/base:noble",
+    "features": {
+      "cursor-agent-cli": {},
+      "grok-cli": {}
+    }
   }
 }
