@@ -8,7 +8,7 @@ The executable, updater, and Grok state remain owned by the user rather than roo
 
 | Option    | Type   | Default  | Description                                                                    |
 | --------- | ------ | -------- | ------------------------------------------------------------------------------ |
-| `version` | string | `latest` | Grok CLI version to install. Use `latest` or a specific version like `1.0.13`. |
+| `version` | string | `latest` | Grok CLI version to install. Use `latest` or a specific version like `1.0.12`. |
 
 ## Example usage
 

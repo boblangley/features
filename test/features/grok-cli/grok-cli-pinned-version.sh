@@ -13,7 +13,7 @@ USER_HOME="$(getent passwd "${FEATURE_USER}" | cut -d: -f6)"
 GROK="${USER_HOME}/.grok/bin/grok"
 
 requested_version_installed() {
-    [[ "$1" =~ (^|[^0-9])1\.0\.13([^0-9]|$) ]]
+    [[ "$1" =~ (^|[^0-9])1\.0\.12([^0-9]|$) ]]
 }
 
 check "grok command exists" test -x "${GROK}"
