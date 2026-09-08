@@ -20,6 +20,7 @@ check "cursor-agent version works as user" env HOME="${USER_HOME}" "${CURSOR_AGE
 check "agent executable is user-owned" test "$(stat -c %U "$(readlink -f "${AGENT}")")" = "${FEATURE_USER}"
 check "cursor-agent executable is user-owned" test "$(stat -c %U "$(readlink -f "${CURSOR_AGENT}")")" = "${FEATURE_USER}"
 check "cursor installation is user-owned" test "$(stat -c %U "${USER_HOME}/.local/share/cursor-agent")" = "${FEATURE_USER}"
+check "cursor installation contains no foreign-owned entries" bash -c 'test -z "$(find "$1" ! -user "$2" -print -quit)"' _ "${USER_HOME}/.local/share/cursor-agent" "${FEATURE_USER}"
 check "system agent link targets user installation" test "$(readlink -f /usr/local/bin/agent)" = "$(readlink -f "${AGENT}")"
 check "system cursor-agent link targets user installation" test "$(readlink -f /usr/local/bin/cursor-agent)" = "$(readlink -f "${CURSOR_AGENT}")"
 

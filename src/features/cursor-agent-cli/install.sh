@@ -29,6 +29,10 @@ cursor_agent_binary="${user_home}/.local/bin/cursor-agent"
 [ -x "${agent_binary}" ] || err "Cursor Agent CLI was not installed at ${agent_binary}."
 [ -x "${cursor_agent_binary}" ] || err "Cursor Agent CLI was not installed at ${cursor_agent_binary}."
 
+devcontainer_group="$(id -gn "${devcontainer_user}")"
+chown -R "${devcontainer_user}:${devcontainer_group}" "${user_home}/.local/share/cursor-agent"
+chown -h "${devcontainer_user}:${devcontainer_group}" "${agent_binary}" "${cursor_agent_binary}"
+
 ln -sf "${agent_binary}" /usr/local/bin/agent
 ln -sf "${cursor_agent_binary}" /usr/local/bin/cursor-agent
 
